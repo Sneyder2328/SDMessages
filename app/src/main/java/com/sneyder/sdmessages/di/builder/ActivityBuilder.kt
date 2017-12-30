@@ -16,11 +16,26 @@
 
 package com.sneyder.sdmessages.di.builder
 
+import com.sneyder.sdmessages.ui.home.HomeActivity
+import com.sneyder.sdmessages.ui.login.LogInActivity
+import com.sneyder.sdmessages.ui.main.MainActivity
+import com.sneyder.sdmessages.ui.main.chats.ChatsFragmentProvider
+import com.sneyder.sdmessages.ui.register.RegisterActivity
 import dagger.Module
+import dagger.android.ContributesAndroidInjector
 
 @Module
 abstract class ActivityBuilder {
 
+    @ContributesAndroidInjector()
+    abstract fun bindHomeActivity(): HomeActivity
 
+    @ContributesAndroidInjector()
+    abstract fun bindRegisterActivity(): RegisterActivity
 
+    @ContributesAndroidInjector()
+    abstract fun bindLogInActivity(): LogInActivity
+
+    @ContributesAndroidInjector(modules = [(ChatsFragmentProvider::class)])
+    abstract fun bindMainActivity(): MainActivity
 }

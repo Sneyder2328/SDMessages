@@ -5,9 +5,9 @@ extern "C"
 JNIEXPORT jstring
 
 JNICALL
-Java_com_sneyder_sdmessages_HomeActivity_stringFromJNI(
+Java_com_sneyder_sdmessages_data_hashGenerator_AppHasher_getPepper(
         JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
+    std::string pepper = "timafaptiwuftfap";
+    return env->NewStringUTF(pepper.c_str());
 }

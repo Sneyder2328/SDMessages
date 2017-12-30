@@ -18,4 +18,46 @@
   <string name="app_name">SD Messages</string>
   <string name="home_button_sign_up">Sign up</string>
   <string name="home_button_log_in">Log in</string>
+  <string name="register_hint_user_name">User name</string>
+  <string name="register_hint_email">Email</string>
+  <string name="register_hint_password">Password</string>
+  <string name="register_button_sign_up">Sign up</string>
+  <string name="register_text_accept_policy">By sign up you accept our <a href="https://sneyder.net/SDMessages/privacyPolicy.html">privacy policy</a> and <a href="http://34.199.104.254/termsofuse.html">terms of use</a></string>
+  <string name="register_select_birthday">Birthday</string>
+  <string name="register_format_birthday">Birthday: %1$s/%2$s/%3$s</string>
+  <string name="register_warning_missing_username">You must enter your userInfo name</string>
+  <string name="register_warning_missing_email">You must a valid email</string>
+  <string name="register_warning_missing_password">You must enter a password</string>
+  <string name="register_warning_invalid_birthday">You must be at least 18 years old to be able to use this application</string>
+  <string name="login_button_login">Log in</string>
+  <string name="register_message_error_singing_up">There was an error singing up in the server</string>
+  <string name="login_message_error_loggin_in">There was an error logging in the server</string>
+  <string name="signup_message_unable_google_login">Unable to login with Google</string>
+  <string name="register_add_image_url_dialog_imgurl">Image url</string>
+  <string name="register_message_error_taking_photo">There was an error saving the photo in the storage</string>
+
+  <string-array name="register_add_profile_img_options">
+    <item>Take photo</item>
+    <item>Choose existing image</item>
+    <item>Add image url</item>
+  </string-array>
+
+  <string-array name="main_title_fragments">
+    <item>Chats</item>
+    <item>Groups</item>
+    <item>Profile</item>
+  </string-array>
+
+  <string name="facebook_app_id">158152681487301</string>
+  <string name="fb_login_protocol_scheme">fb158152681487301</string>
+  <string name="server_client_id">434477538698-8ulu0utc36ugu3ob252o5bptt1s52clk.apps.googleusercontent.com</string>
+
+  <!-- TODO: Remove or change this placeholder text -->
+  <string name="hello_blank_fragment">Hello blank fragment</string>
+  <string name="main_menu_search">Search</string>
+  <string name="chats_message_error_loading_chats">There was an error loading the chats</string>
+  <string name="login_warning_invalid_email">You must insert a valid email address</string>
+  <string name="login_warning_missing_password">You must insert a valid password</string>
+  <string name="groups_message_error_loading_groups">There was an error loading the groups</string>
+
 </resources>

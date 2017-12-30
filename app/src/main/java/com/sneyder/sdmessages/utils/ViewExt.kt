@@ -14,8 +14,4 @@
  * limitations under the License.
  */
 
-package com.sneyder.rememberconcepts.utils
-
-/**
- * Created by sneyd on 11/28/2017.
- */
+package com.sneyder.sdmessages.utils

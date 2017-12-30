@@ -104,7 +104,6 @@ public class FlipAnimation extends Animation {
 
     /**
      * Get the current direction, it can be {@link #ROTATION_X} or {#ROTATION_Y}
-     * @param direction
      */
     public void setDirection(int direction) {
         mDirection = direction;

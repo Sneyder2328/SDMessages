@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sneyder.rememberconcepts.utils.schedulers
+package com.sneyder.sdmessages.utils.schedulers
 
 import io.reactivex.Scheduler
 

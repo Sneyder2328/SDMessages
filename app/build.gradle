@@ -7,230 +7,229 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
 
 repositories {
-    mavenCentral()
-    maven { url 'https://maven.fabric.io/public' }
+  mavenCentral()
+  maven { url 'https://maven.fabric.io/public' }
 }
 
 buildscript {
-    repositories {
-        mavenCentral()
-        maven { url 'https://maven.fabric.io/public' }
-    }
-    dependencies {
-        classpath 'io.fabric.tools:gradle:1.25.1'
-    }
+  repositories {
+    mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+  }
+  dependencies {
+    classpath 'io.fabric.tools:gradle:1.25.1'
+  }
 }
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'sdmessagessapp'
-            keyPassword 'abwtswegaxjwe'
-            storeFile file('C:/Users/sneyd/Documents/sneyder/sneyderapps.jks')
-            storePassword 'abwtswegaxjwe'
-        }
+  signingConfigs {
+    release {
+      keyAlias 'SDMessagesApp'
+      keyPassword 'abwtswegaxjwe'
+      storeFile file('C:/Users/sneyd/Documents/sneyder/sneyderapps.jks')
+      storePassword 'abwtswegaxjwe'
     }
-    compileSdkVersion 27
-    defaultConfig {
-        applicationId "com.sneyder.sdmessages"
-        minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
-        vectorDrawables.useSupportLibrary = true
-        javaCompileOptions {
-            annotationProcessorOptions {
-                // Good practice to save room database schemes
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
-    }
-    buildTypes {
-        debug {
-            minifyEnabled false
-            useProguard false
-            versionNameSuffix '-DEBUG'
-        }
-        release {
-            shrinkResources true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-    }
+  }
+  compileSdkVersion 27
+  defaultConfig {
+    applicationId "com.sneyder.sdmessages"
+    minSdkVersion 15
+    targetSdkVersion 27
+    versionCode 1
+    versionName "1.0"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    multiDexEnabled = true
     externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
+      cmake {
+        cppFlags ""
+      }
     }
-    androidExtensions {
-        experimental = true
+    vectorDrawables.useSupportLibrary = true
+    javaCompileOptions {
+      annotationProcessorOptions {
+        // Good practice to save room database schemes
+        arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+      }
     }
-    // Test Android jar comes with unimplemented methods that throw exceptions by default. This
-    // option forces the methods to return default values instead. Required for static methods,
-    // such as TextUtils, as those cannot be mocked with Mockito.
-    // Refer http://tools.android.com/tech-docs/unit-testing-support#TOC-Method-...-not-mocked.-
-    testOptions {
-        unitTests.returnDefaultValues = true
+  }
+  buildTypes {
+    debug {
+      minifyEnabled false
+      useProguard false
+      versionNameSuffix '-DEBUG'
     }
-    packagingOptions {
-        exclude 'META-INF/rxjava.properties'
+    release {
+      shrinkResources true
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      signingConfig signingConfigs.release
     }
-    sourceSets {
-        debug.java.srcDirs += 'src/debug/java'
-        androidTest.java.srcDirs += "src/androidTest/java"
-        test.java.srcDirs += "src/commonTest/java"
-        release.java.srcDirs += 'src/release/java'
+  }
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
     }
+  }
+  androidExtensions {
+    experimental = true
+  }
+  // Test Android jar comes with unimplemented methods that throw exceptions by default. This
+  // option forces the methods to return default values instead. Required for static methods,
+  // such as TextUtils, as those cannot be mocked with Mockito.
+  // Refer http://tools.android.com/tech-docs/unit-testing-support#TOC-Method-...-not-mocked.-
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
+  packagingOptions {
+    exclude 'META-INF/rxjava.properties'
+  }
+  sourceSets {
+    debug.java.srcDirs += 'src/debug/java'
+    androidTest.java.srcDirs += "src/androidTest/java"
+    test.java.srcDirs += "src/commonTest/java"
+    release.java.srcDirs += 'src/release/java'
+  }
 }
-
-/*
- * Copyright (C) 2018 Sneyder Angulo.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 // Define versions in a single place
 ext {
-    // App dependencies
-    support_library_version = '27.0.2'
-    constrain_layout_version = '1.0.2'
-    dagger_version = '2.11'
-    retrofit2_version = '2.3.0'
-    gson_version = '2.8.0'
-    glide_version = '4.3.1'
-    rxandroid2_version = '2.0.1'
-    rxjava2_version = '2.1.3'
-    junit_version = '4.12'
-    mockito_version = '2.7.1'
-    espresso_version = "3.0.1"
-    architecture_components_version = "1.0.+"
-    timber_version = "4.6.0"
-    play_services_version = "11.6.2"
-    android_job_version = "1.2.1"
-    leak_canary_version = "1.5.4"
-    okhttp_version = "3.8.0"
+  // App dependencies
+  support_library_version = '27.0.1'
+  constrain_layout_version = '1.0.2'
+  dagger_version = '2.11'
+  retrofit2_version = '2.3.0'
+  gson_version = '2.8.0'
+  glide_version = '4.3.1'
+  rxandroid2_version = '2.0.1'
+  rxjava2_version = '2.1.3'
+  rxlint_version = '1.6'
+  junit_version = '4.12'
+  mockito_version = '2.7.1'
+  espresso_version = "3.0.1"
+  architecture_components_version = "1.0.0"
+  timber_version = "4.6.0"
+  play_services_version = "11.8.0"
+  android_job_version = "1.2.1"
+  leak_canary_version = "1.5.4"
+  okhttp_version = "3.8.0"
 }
 
 kapt {
-    generateStubs = true
+  generateStubs = true
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+  // Kotlin
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
-    // Support library
-    implementation "com.android.support:appcompat-v7:$support_library_version"
-    implementation "com.android.support:design:$support_library_version"
-    implementation "com.android.support:recyclerview-v7:$support_library_version"
-    implementation "com.android.support:cardview-v7:$support_library_version"
-    implementation "com.android.support.constraint:constraint-layout:$constrain_layout_version"
-    implementation "com.android.support:support-v4:$support_library_version"
-    implementation "com.android.support:support-vector-drawable:$support_library_version"
+  // Support library
+  implementation "com.android.support:appcompat-v7:$support_library_version"
+  implementation "com.android.support:design:$support_library_version"
+  implementation "com.android.support:recyclerview-v7:$support_library_version"
+  implementation "com.android.support:exifinterface:$support_library_version"
+  implementation 'com.android.support:multidex:1.0.2'
+  implementation "com.android.support:cardview-v7:$support_library_version"
+  implementation "com.android.support.constraint:constraint-layout:$constrain_layout_version"
+  implementation "com.android.support:support-v4:$support_library_version"
+  implementation "com.android.support:support-vector-drawable:$support_library_version"
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit2_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit2_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit2_version"
+  // AWS
+  implementation('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true }
+  implementation 'com.amazonaws:aws-android-sdk-s3:2.6.7'
+  implementation 'com.amazonaws:aws-android-sdk-cognito:2.6.7'
 
-    // Architecture components (Lifecycles, LiveData, and ViewModel)
-    implementation "android.arch.lifecycle:runtime:$architecture_components_version"
-    implementation "android.arch.lifecycle:extensions:$architecture_components_version"
-    kapt "android.arch.lifecycle:compiler:$architecture_components_version"
+  // Facebook login SDK
+  implementation "com.facebook.android:facebook-android-sdk:4.+"
 
-    // Room
-    implementation "android.arch.persistence.room:runtime:$architecture_components_version"
-    kapt "android.arch.persistence.room:compiler:$architecture_components_version"
-    // Room RxJava2 support
-    implementation "android.arch.persistence.room:rxjava2:$architecture_components_version"
 
-    // Gson
-    implementation "com.google.code.gson:gson:$gson_version"
+  // Retrofit
+  implementation "com.squareup.retrofit2:retrofit:$retrofit2_version"
+  implementation "com.squareup.retrofit2:converter-gson:$retrofit2_version"
+  implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit2_version"
 
-    // rxJava2 and rxAndroid2
-    implementation "io.reactivex.rxjava2:rxjava:$rxjava2_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid2_version"
+  // Architecture components (Lifecycles, LiveData, and ViewModel)
+  implementation "android.arch.lifecycle:runtime:$architecture_components_version"
+  implementation "android.arch.lifecycle:extensions:$architecture_components_version"
+  implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+  implementation 'com.android.support:support-v4:27.0.2'
+  kapt "android.arch.lifecycle:compiler:$architecture_components_version"
 
-    // Dagger Core
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+  // Room
+  implementation "android.arch.persistence.room:runtime:$architecture_components_version"
+  kapt "android.arch.persistence.room:compiler:$architecture_components_version"
+  // Room RxJava2 support
+  implementation "android.arch.persistence.room:rxjava2:$architecture_components_version"
 
-    // Timber(logger)
-    implementation "com.jakewharton.timber:timber:$timber_version"
+  // Gson
+  implementation "com.google.code.gson:gson:$gson_version"
 
-    // Glide
-    implementation "com.github.bumptech.glide:glide:$glide_version"
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
+  // rxJava2, rxAndroid2 and rxKotlin
+  implementation "io.reactivex.rxjava2:rxjava:$rxjava2_version"
+  implementation "io.reactivex.rxjava2:rxandroid:$rxandroid2_version"
+  implementation "io.reactivex.rxjava2:rxkotlin:2.1.0"
+  // rxLint(It's a useful tool that shows rxJava's related lint warnings)
+  implementation "nl.littlerobots.rxlint:rxlint:$rxlint_version"
 
-    // Test dependencies
-    implementation "com.android.support:support-v4:$support_library_version"
-    testImplementation "junit:junit:$junit_version"
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+  // Dagger Core
+  implementation "com.google.dagger:dagger:$dagger_version"
+  implementation "com.google.dagger:dagger-android-support:$dagger_version"
+  kapt "com.google.dagger:dagger-compiler:$dagger_version"
+  kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
-    // Leak Canary
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leak_canary_version"
+  // Timber(logger)
+  implementation "com.jakewharton.timber:timber:$timber_version"
 
-    // Fabric crashlytics
-    releaseImplementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
-        transitive = true
-    }
+  implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    // Google Play Services Auth
-    implementation "com.google.android.gms:play-services-auth:$play_services_version"
-    implementation "com.google.firebase:firebase-core:$play_services_version"
+  // Test dependencies
+  implementation "com.android.support:support-v4:$support_library_version"
+  testImplementation "junit:junit:$junit_version"
+  androidTestImplementation 'com.android.support.test:runner:1.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    // Android-Job
-    implementation "com.evernote:android-job:$android_job_version"
-    // It's useful(and optional) so that Android-Job uses GcmNetworkManager on Android 4
-    implementation "com.google.android.gms:play-services-gcm:$play_services_version"
+  // Leak Canary
+  debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
+  releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leak_canary_version"
 
-    // JUnit Unit tests
-    testImplementation "junit:junit:$junit_version"
-    testImplementation 'com.nhaarman:mockito-kotlin:1.5.0'
-    testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
-    testImplementation("android.arch.core:core-testing:$architecture_components_version", {
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'support-core-utils'
-    })
-    // RxJava/OkHttp localhost server testing
-    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
+  // Fabric crashlytics
+  releaseImplementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') { transitive = true }
 
-    // Espresso UI Testing
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version"
-    androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso_version"
-    androidTestImplementation "com.android.support.test.espresso.idling:idling-concurrent:$espresso_version"
-    implementation "com.android.support.test.espresso:espresso-idling-resource:$espresso_version"
-    androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espresso_version", {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'support-v4'
-        exclude group: 'com.android.support', module: 'design'
-        exclude group: 'com.android.support', module: 'recyclerview-v7'
-    }
-    androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
+  // Google Play Services Auth
+  implementation "com.google.android.gms:play-services-auth:$play_services_version"
+  implementation "com.google.firebase:firebase-core:$play_services_version"
+
+  // Android-Job
+  implementation "com.evernote:android-job:$android_job_version"
+  // It's useful(and optional) so that Android-Job uses GcmNetworkManager on Android 4
+  implementation "com.google.android.gms:play-services-gcm:$play_services_version"
+
+  // JUnit Unit tests
+  testImplementation "junit:junit:$junit_version"
+  testImplementation 'com.nhaarman:mockito-kotlin:1.5.0'
+  testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
+  testImplementation("android.arch.core:core-testing:$architecture_components_version", {
+    exclude group: 'com.android.support', module: 'support-compat'
+    exclude group: 'com.android.support', module: 'support-annotations'
+    exclude group: 'com.android.support', module: 'support-core-utils'
+  })
+  // RxJava/OkHttp localhost server testing
+  testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
+
+  // Espresso UI Testing
+  androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version"
+  androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso_version"
+  androidTestImplementation "com.android.support.test.espresso.idling:idling-concurrent:$espresso_version"
+  implementation "com.android.support.test.espresso:espresso-idling-resource:$espresso_version"
+  androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espresso_version",
+          {
+            exclude group: 'com.android.support', module: 'support-annotations'
+            exclude group: 'com.android.support', module: 'support-v4'
+            exclude group: 'com.android.support', module: 'design'
+            exclude group: 'com.android.support', module: 'recyclerview-v7'
+          }
+  androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 }
 
 apply plugin: 'com.google.gms.google-services'

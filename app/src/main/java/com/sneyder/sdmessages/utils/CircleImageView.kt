@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sneyder.rememberconcepts.utils
+package com.sneyder.sdmessages.utils
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -25,7 +25,6 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 
@@ -46,10 +45,7 @@ class CircleImageView : AppCompatImageView {
         val b = (drawable as BitmapDrawable).bitmap
         val bitmap = b.copy(Bitmap.Config.ARGB_8888, true)
 
-        val w = width
-        val h = height
-
-        val roundBitmap = getCroppedBitmap(bitmap, w)
+        val roundBitmap = getCroppedBitmap(bitmap, width)
         canvas.drawBitmap(roundBitmap, 0f, 0f, null)
 
     }

@@ -18,12 +18,15 @@ package com.sneyder.sdmessages.di.component
 
 import android.app.Application
 import com.sneyder.sdmessages.BaseApp
+import com.sneyder.sdmessages.di.builder.ActivityBuilder
+import com.sneyder.sdmessages.di.module.AppModule
 import dagger.BindsInstance
 import dagger.Component
+import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [])
+@Component(modules = [(AndroidSupportInjectionModule::class), (AppModule::class), (ActivityBuilder::class)])
 interface AppComponent {
 
     @Component.Builder
@@ -32,7 +35,7 @@ interface AppComponent {
         @BindsInstance
         fun application(application: Application): Builder
 
-        fun build(): Application
+        fun build(): AppComponent
 
     }
 

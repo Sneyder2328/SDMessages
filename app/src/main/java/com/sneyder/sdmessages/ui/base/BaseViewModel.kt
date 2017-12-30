@@ -17,7 +17,8 @@
 package com.sneyder.sdmessages.ui.base
 
 import android.arch.lifecycle.ViewModel
-import com.sneyder.rememberconcepts.utils.schedulers.SchedulerProvider
+import com.sneyder.sdmessages.utils.schedulers.SchedulerProvider
+import debug
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -48,8 +49,10 @@ abstract class BaseViewModel(val schedulersProvider: SchedulerProvider): ViewMod
     }
 
     override fun onCleared() {
+        debug("onCleared")
         if (!compositeDisposable.isDisposed) {
             compositeDisposable.dispose()
+            debug("onCleared dispose")
         }
         super.onCleared()
     }

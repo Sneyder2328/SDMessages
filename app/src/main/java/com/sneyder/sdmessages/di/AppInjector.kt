@@ -24,9 +24,9 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import com.sneyder.sdmessages.BaseApp
 import com.sneyder.sdmessages.di.component.AppComponent
+import com.sneyder.sdmessages.di.component.DaggerAppComponent
 import dagger.android.AndroidInjection
 import dagger.android.support.AndroidSupportInjection
-import dagger.android.support.AndroidSupportInjection.inject
 import dagger.android.support.HasSupportFragmentInjector
 
 /**

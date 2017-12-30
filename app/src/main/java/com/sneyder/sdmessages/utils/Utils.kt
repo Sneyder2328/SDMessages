@@ -34,7 +34,6 @@ import android.support.annotation.IdRes
 import android.support.annotation.StringRes
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import java.io.Serializable
 import java.text.DecimalFormat
@@ -63,6 +62,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URI
+import java.text.SimpleDateFormat
 import java.util.*
 
 // Toasts
@@ -629,12 +629,12 @@ inline fun bundleOf(vararg params: Pair<String, Any>): Bundle {
                     v.isArrayOf<Parcelable>() -> b.putParcelableArray(k, v as Array<out Parcelable>)
                     v.isArrayOf<CharSequence>() -> b.putCharSequenceArray(k, v as Array<out CharSequence>)
                     v.isArrayOf<String>() -> b.putStringArray(k, v as Array<out String>)
-                    else -> Log.e("Error in bundle of", "the argument passed is not valid")
+                    else -> error("Error in bundle of: the argument passed is not valid")
                 }
             }
             is ShortArray -> b.putShortArray(k, v)
             is Bundle -> b.putBundle(k, v)
-            else -> Log.e("Error in bundle of", "the argument passed is not valid")
+            else -> error("Error in bundle of: the argument passed is not valid")
         }
     }
 
@@ -796,7 +796,7 @@ infix fun Long.percentageOf(number: Long): Double {
     return this / number.toDouble() * 100
 }
 
-fun Long.asCalendar() = Calendar.getInstance().apply { timeInMillis = this@asCalendar }
+fun Long.asCalendar() = Calendar.getInstance().apply { timeInMillis = this@asCalendar }!!
 
 fun newThread(block: () -> Unit){
     object : Thread(){
@@ -877,11 +877,11 @@ fun daysBetweenCalendars(calendar1: Calendar, calendar2: Calendar): Long{
 fun saveToInternalStorage(context: Context, bitmapImage: Bitmap): File {
     val cw = ContextWrapper(context)
     val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-    val myPath = File(directory, "RememberConcepts" + System.currentTimeMillis() / 1000 + ".png")
+    val myPath = File(directory, generateImageFileName())
     var fileOutputStream: FileOutputStream? = null
     try {
         fileOutputStream = FileOutputStream(myPath)
-        bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
     } catch (e: Exception) {
         e.printStackTrace()
     } finally {
@@ -893,9 +893,29 @@ fun saveToInternalStorage(context: Context, bitmapImage: Bitmap): File {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
     }
     return myPath
+}
+
+@Throws(IOException::class)
+@SuppressLint("SimpleDateFormat")
+fun createImageFile(context: Context): File {
+    // Create an image file name
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "SDMessages_" + timeStamp + "_"
+    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    return File.createTempFile(
+            imageFileName, /* prefix */
+            ".jpg", /* suffix */
+            storageDir      /* directory */
+    )
+}
+
+
+@SuppressLint("SimpleDateFormat")
+fun generateImageFileName(): String {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    return "SDMessages_$timeStamp.jpg"
 }
 
 fun TextView.setDrawableLeft(drawable: Drawable) {
@@ -1039,7 +1059,7 @@ fun <T> Spinner.setItems(
         layoutResource: Int = android.R.layout.simple_spinner_dropdown_item,
         getTitle: (item: T) -> String = { a -> a.toString() }): SpinnerAdapter? {
 
-    val finalList: ArrayList<String> = ArrayList<String>()
+    val finalList: ArrayList<String> = ArrayList()
     items?.forEach {
         finalList.add(getTitle(it))
     }

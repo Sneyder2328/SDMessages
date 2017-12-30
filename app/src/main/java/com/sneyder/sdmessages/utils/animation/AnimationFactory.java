@@ -110,7 +110,7 @@ public class AnimationFactory {
 	 * @param dir the flip direction
 	 * @param duration the transition duration in milliseconds
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator) 
-	 * @return
+	 * @return object of type [Animation]
 	 */
 	public static Animation[] flipAnimation(final View fromView, final View toView, FlipDirection dir, long duration, Interpolator interpolator) {
 		Animation[] result = new Animation[2];

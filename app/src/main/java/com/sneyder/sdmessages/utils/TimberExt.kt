@@ -46,6 +46,7 @@
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint
 import timber.log.Timber
 
 typealias TypeMessage = Any?
@@ -68,7 +69,7 @@ fun error(throwable: Throwable, message: TypeMessage) = ifPlanted {
 /** Delegates the provided message to [Timber.w] if any trees are planted. */
 fun warn(message: TypeMessage) = ifPlanted { Timber.w(message.toString()) }
 
-/** Delegates the provided message to [Timber.w] if any trees are planted. */
+        /** Delegates the provided message to [Timber.w] if any trees are planted. */
 fun warn(throwable: Throwable, message: TypeMessage) = ifPlanted {
     Timber.w(throwable, message.toString())
 }

@@ -17,7 +17,7 @@
 package com.sneyder.sdmessages
 
 import android.app.Activity
-import android.app.Application
+import android.support.multidex.MultiDexApplication
 import com.sneyder.sdmessages.di.AppInjector
 import com.sneyder.sdmessages.di.component.AppComponent
 import com.squareup.leakcanary.LeakCanary
@@ -26,7 +26,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import javax.inject.Inject
 
-abstract class BaseApp: Application(), HasActivityInjector {
+abstract class BaseApp: MultiDexApplication(), HasActivityInjector {
 
     @Inject lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
     lateinit var appComponent: AppComponent

@@ -16,47 +16,56 @@
 
 package com.sneyder.sdmessages.ui.home
 
-import android.support.v7.app.AppCompatActivity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.sneyder.sdmessages.R
+import com.sneyder.sdmessages.ui.base.DaggerActivity
+import com.sneyder.sdmessages.ui.login.LogInActivity
+import com.sneyder.sdmessages.ui.main.MainActivity
+import com.sneyder.sdmessages.ui.signup.SignUpActivity
 
-class HomeActivity : AppCompatActivity() {
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    external fun stringFromJNI(): String
+class HomeActivity : DaggerActivity() {
 
     companion object {
 
-        // Used to load the 'native-lib' library on application startup.
-        init {
-            System.loadLibrary("native-lib")
+        fun starterIntent(context: Context): Intent {
+            return Intent(context, HomeActivity::class.java)
         }
+
     }
+
+    private val homeViewModel by lazy { getViewModel(HomeViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        homeViewModel.ifLogged {
+            openMainActivity()
+        }
     }
 
     fun signUp(v: View) {
         openSignUpActivity()
-        v.isEnabled = false
     }
 
     fun logIn(v: View) {
         openLogInActivity()
-        v.isEnabled = false
     }
 
     private fun openSignUpActivity() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        startActivity(SignUpActivity.starterIntent(this@HomeActivity))
+        finish()
     }
 
     private fun openLogInActivity() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        startActivity(LogInActivity.starterIntent(this@HomeActivity))
+        finish()
+    }
+
+    private fun openMainActivity() {
+        startActivity(MainActivity.starterIntent(this@HomeActivity))
+        finish()
     }
 }

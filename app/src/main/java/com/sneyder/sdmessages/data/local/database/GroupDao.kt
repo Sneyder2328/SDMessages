@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package com.sneyder.rememberconcepts.utils
+package com.sneyder.sdmessages.data.local.database
 
-import com.bumptech.glide.annotation.GlideModule
-import com.bumptech.glide.module.AppGlideModule
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.OnConflictStrategy
+import android.arch.persistence.room.Query
+import com.sneyder.sdmessages.data.model.GroupInfo
+import io.reactivex.Flowable
 
-@GlideModule
-class MyAppGlideModule: AppGlideModule() {
+@Dao
+abstract class GroupDao: BaseDao<GroupInfo> {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertGroups(vararg users: GroupInfo)
+
+    @Query("SELECT * FROM ${GroupInfo.TABLE_NAME}")
+    abstract fun findGroups(): Flowable<List<GroupInfo>>
 
 }
