@@ -23,18 +23,23 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferType
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.services.s3.AmazonS3Client
+import com.sneyder.sdmessages.data.imageCompressor.ImageCompressor
 import debug
 import error
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableEmitter
+import io.reactivex.rxkotlin.subscribeBy
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AppS3FilesManager
-@Inject constructor(private val applicationContext: Context) : S3FilesManager() {
+@Inject constructor(
+        private val applicationContext: Context,
+        private val imageCompressor: ImageCompressor
+        ) : S3FilesManager() {
 
     private val transferUtility by lazy {
         TransferUtility.builder()
@@ -44,9 +49,15 @@ class AppS3FilesManager
                 .build()
     }
 
-    override fun uploadFile(file: File, key: String): Flowable<Int> {
+    override fun uploadFileCompressed(file: File,
+                                      key: String,
+                                      maxWidth: Float,
+                                      maxHeight: Float
+    ): Flowable<Int> {
+
         return Flowable.create({ emitter: FlowableEmitter<Int> ->
-            val uploadObserver = transferUtility.upload(key, file)
+            val fileCompressed = imageCompressor.compressImage(file.absolutePath, maxWidth, maxHeight).blockingGet()
+            val uploadObserver = transferUtility.upload(key, fileCompressed)
 
             uploadObserver.setTransferListener(object : TransferListener {
 
@@ -71,9 +82,6 @@ class AppS3FilesManager
             })
 
         }, BackpressureStrategy.LATEST)
-                .doOnNext { debug("doOnNext uploadFile($file, $key) = $it") }
-                .doOnComplete { debug("doOnComplete uploadFile($file, $key)") }
-                .doOnError { error("doOnError uploadFile($file, $key) = ${it.message}") }
     }
 
     override fun cancelAll() {

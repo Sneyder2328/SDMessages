@@ -16,16 +16,34 @@
 
 package com.sneyder.sdmessages.ui.main.profile
 
+import android.arch.lifecycle.Observer
+import android.graphics.Color
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.ui.base.BaseFragment
+import com.sneyder.sdmessages.ui.base.BaseActivity
+import com.sneyder.sdmessages.ui.base.DaggerFragment
+import com.sneyder.sdmessages.ui.register.AddUrlImgDialog
+import com.sneyder.sdmessages.utils.dialogs.EditNameDialog
+import com.sneyder.sdmessages.utils.dialogs.ProfilePhotoDialog
+import com.sneyder.sdmessages.utils.ifError
+import com.sneyder.sdmessages.utils.ifLoading
+import com.sneyder.sdmessages.utils.ifSuccess
+import com.squareup.picasso.Picasso
+import debug
+import into
+import kotlinx.android.synthetic.main.fragment_profile.*
+import load
+import reObserve
+import setHeight
+import java.io.File
 
 /**
  * A simple [Fragment] subclass.
  * Use the [ProfileFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ProfileFragment : BaseFragment() {
+class ProfileFragment : DaggerFragment(), EditNameDialog.EditNameListener, ProfilePhotoDialog.SelectImageListener, AddUrlImgDialog.AddUrlImgListener {
 
     companion object {
         /**
@@ -39,4 +57,69 @@ class ProfileFragment : BaseFragment() {
 
     override fun getLayoutRes(): Int = R.layout.fragment_profile
 
+    private val profileViewModel by lazy { getViewModel(ProfileViewModel::class.java) }
+    private var lastPhotoUrl = ""
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        profileViewModel.loadUserInfo()
+        observeMyUserInfo()
+        observeImgUploading()
+        usernameTextView.setOnClickListener {
+            EditNameDialog.newInstance(usernameTextView.text.toString()).show(childFragmentManager, "EditNameDialog")
+        }
+        imgProfileCameraButton.setOnClickListener {
+            ProfilePhotoDialog.newInstance().show(childFragmentManager, "ProfilePhotoDialog")
+        }
+        // set the height of the imageView the same size as the width because the profile img is shown in a circle/square and different width/height would cause issues
+        imgProfileImageView.post { imgProfileImageView.setHeight(imgProfileImageView.width) }
+    }
+
+    private fun observeMyUserInfo() {
+        profileViewModel.myUserInfo.reObserve(this, Observer {
+            it.ifSuccess { user ->
+                usernameTextView.text = user.displayName
+                usernameTextView.setTextColor(Color.BLACK)
+                if (lastPhotoUrl != user.photoUrl) {
+                    context?.load(user.photoUrl).into(imgProfileImageView, { fit().centerCrop()})
+                    lastPhotoUrl = user.photoUrl?:""
+                }
+            }
+        })
+    }
+
+    private fun observeImgUploading() {
+        profileViewModel.imgUploading.reObserve(this, Observer {
+
+        })
+    }
+
+    override fun onNewUserName(userName: String) {
+        usernameTextView.setTextColor(Color.rgb(188, 188, 188))
+        profileViewModel.updateUserName(userName)
+    }
+
+    override fun onTakePicture() {
+        debug("onTakePicture")
+        (activity as BaseActivity).launchTakePictureIntent()
+    }
+
+    override fun onPickImage() {
+        debug("onPickImage")
+        (activity as BaseActivity).launchImageSelectorIntent()
+    }
+
+    fun onActivityResultWithImageFile(imgPickedOrTaken: File) {
+        debug("onActivityResultWithImageFile $imgPickedOrTaken")
+        profileViewModel.uploadImage(imgPickedOrTaken)
+        //Picasso.with(context).load(imgPickedOrTaken).fit().centerCrop().into(imgProfileImageView)
+    }
+
+    override fun onShowAddUrlImageDialog() {
+        AddUrlImgDialog.newInstance().show(childFragmentManager, "AddUrlImgDialog")
+    }
+
+    override fun onUrlImgAdded(urlImg: String) {
+        context?.load(urlImg).into(imgProfileImageView)
+    }
 }

@@ -27,7 +27,9 @@ import io.reactivex.disposables.Disposable
 
 abstract class BaseViewModel(val schedulersProvider: SchedulerProvider): ViewModel() {
 
-    private val compositeDisposable by lazy { CompositeDisposable() }
+    private val compositeDisposable by lazy {
+        CompositeDisposable()
+    }
 
     fun <T>Flowable<T>.applySchedulers(): Flowable<T> = this
             .subscribeOn(schedulersProvider.io())
@@ -45,15 +47,13 @@ abstract class BaseViewModel(val schedulersProvider: SchedulerProvider): ViewMod
      * Adds a disposable to compositeDisposable
      */
     fun add(disposable: Disposable): Boolean {
+
         return compositeDisposable.add(disposable)
     }
 
     override fun onCleared() {
-        debug("onCleared")
-        if (!compositeDisposable.isDisposed) {
-            compositeDisposable.dispose()
-            debug("onCleared dispose")
-        }
+        debug("onCleared ${this.javaClass}")
+        compositeDisposable.dispose()
         super.onCleared()
     }
 }

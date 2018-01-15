@@ -14,16 +14,67 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.sneyder.sdmessages.ui.main.profile.ProfileFragment">
 
-  <!-- TODO: Update blank fragment layout -->
-  <TextView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+  <android.support.constraint.Guideline
+      android:id="@+id/guidelineStartImg"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:orientation="vertical"
+      app:layout_constraintGuide_percent="0.28"/>
+
+  <android.support.constraint.Guideline
+      android:id="@+id/guidelineEndImg"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:orientation="vertical"
+      app:layout_constraintGuide_percent="0.72"/>
+
+  <com.sneyder.sdmessages.utils.CircleImageView
+      android:id="@+id/imgProfileImageView"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:src="@drawable/default_wallpaper"
+      android:layout_marginTop="22dp"
+      android:adjustViewBounds="true"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintStart_toStartOf="@id/guidelineStartImg"
+      app:layout_constraintEnd_toEndOf="@id/guidelineEndImg"
+      tools:background="#000"/>
+
+  <android.support.design.widget.FloatingActionButton
+      android:id="@+id/imgProfileCameraButton"
+      android:layout_width="56dp"
+      android:layout_height="56dp"
+      app:layout_constraintEnd_toEndOf="@id/imgProfileImageView"
+      app:layout_constraintBottom_toBottomOf="@id/imgProfileImageView"
+      app:backgroundTint="@color/colorPrimary"
+      app:srcCompat="@drawable/ic_add_profile_photo"
+      android:tint="#fff"
+      android:padding="8dp"/>
+
+  <TextView
+      android:id="@+id/usernameTextView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:minHeight="50dp"
+      android:gravity="center_vertical"
+      android:textSize="17sp"
+      android:paddingRight="8dp"
+      android:paddingLeft="8dp"
+      android:drawableEnd="@drawable/ic_edit"
+      android:drawableRight="@drawable/ic_edit"
+      android:layout_marginTop="30dp"
+      app:layout_constraintTop_toBottomOf="@id/imgProfileImageView"
+      tools:text="Sneyder Angulo"/>
+
+
+
+
+</android.support.constraint.ConstraintLayout>

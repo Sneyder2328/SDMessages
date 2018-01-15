@@ -16,6 +16,8 @@
 
 package com.sneyder.sdmessages.data.hashGenerator
 
+import kotlinx.coroutines.experimental.Deferred
+
 abstract class Hasher {
 
     /**
@@ -31,6 +33,6 @@ abstract class Hasher {
             plainText: String,
             keyLength: Int = 256, // 256-bits for AES-256, 128-bits for AES-128, etc
             iterationCount: Int = 1000
-    ): String
+    ): Deferred<String>
 
 }

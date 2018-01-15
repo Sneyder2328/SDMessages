@@ -16,11 +16,68 @@
 
 package com.sneyder.sdmessages.ui.main
 
+import android.arch.lifecycle.MutableLiveData
+import com.sneyder.sdmessages.R
+import com.sneyder.sdmessages.data.model.FriendRequest
+import com.sneyder.sdmessages.data.model.Resource
+import com.sneyder.sdmessages.data.repository.UserRepository
 import com.sneyder.sdmessages.utils.schedulers.SchedulerProvider
 import com.sneyder.sdmessages.ui.base.BaseViewModel
+import io.reactivex.Single
+import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(schedulersProvider: SchedulerProvider): BaseViewModel(schedulersProvider) {
+class MainViewModel
+@Inject constructor(
+        private val userRepository: UserRepository,
+        schedulersProvider: SchedulerProvider
+): BaseViewModel(schedulersProvider) {
 
+    fun keepFirebaseTokenIdUpdated(token: String?): Boolean {
+        if (token == null) return false
+        add(userRepository.updateFirebaseTokenId(userRepository.getCurrentUserId(), userRepository.getCurrentSessionId(), token)
+                .applySchedulers()
+                .subscribeBy(
+                        onSuccess = {  },
+                        onError = {  }
+                ))
+        return true
+    }
+
+    val incomingFriendRequest: MutableLiveData<Resource<Any>> = MutableLiveData()
+
+    fun acceptFriendRequest(pendingFriendRequest: FriendRequest?) {
+        with(pendingFriendRequest ?: return){
+            add(userRepository.acceptFriendRequest(fromUserId = fromUserId, toUserId = toUserId, sessionId = userRepository.getCurrentSessionId())
+                    .applySchedulers()
+                    .subscribeBy(
+                            onSuccess = { incomingFriendRequest.value = Resource.success(it) },
+                            onError = {  }
+                    ))
+        }
+    }
+
+    fun rejectFriendRequest(pendingFriendRequest: FriendRequest?) {
+        with(pendingFriendRequest ?: return){
+            add(userRepository.rejectFriendRequest(fromUserId = fromUserId, toUserId = toUserId, sessionId = userRepository.getCurrentSessionId())
+                    .applySchedulers()
+                    .subscribeBy(
+                            onSuccess = {  },
+                            onError = {  }
+                    ))
+        }
+    }
+
+    val loggedOut: MutableLiveData<Resource<Boolean>> = MutableLiveData()
+
+    fun logOut() {
+        add(userRepository.logOut()
+                .applySchedulers()
+                .subscribeBy(
+                        onSuccess = { loggedOut.value = Resource.success(true) },
+                        onError = { loggedOut.value = Resource.error(R.string.main_error_logging_out) }
+                )
+        )
+    }
 
 }

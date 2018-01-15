@@ -21,8 +21,10 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.data.model.ifSuccess
+import com.sneyder.sdmessages.data.model.UserInfo
 import com.sneyder.sdmessages.ui.base.DaggerFragment
+import com.sneyder.sdmessages.ui.conversation.ConversationActivity
+import com.sneyder.sdmessages.utils.ifSuccess
 import kotlinx.android.synthetic.main.fragment_chats.*
 import reObserve
 
@@ -47,10 +49,10 @@ class ChatsFragment : DaggerFragment() {
 
     private val chatsViewModel by lazy { getViewModel(ChatsViewModel::class.java) }
 
-    private val chatRoomsAdapter by lazy { ChatsAdapter(context!!) }
+    private val chatRoomsAdapter by lazy { ChatsAdapter(context!!, friendSelectedListener) }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        chatsViewModel.loadChats()
+        loadChats()
         chatsViewModel.friends.reObserve(this, Observer { chatRooms ->
             chatRooms?.ifSuccess { chatRoomsAdapter.friends = it }
         })
@@ -58,11 +60,21 @@ class ChatsFragment : DaggerFragment() {
         super.onActivityCreated(savedInstanceState)
     }
 
+    fun loadChats(forceUpdate: Boolean = false) {
+        chatsViewModel.loadChats(forceUpdate)
+    }
+
     private fun setUpChatsRecyclerView() {
         chatsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = chatRoomsAdapter
             setHasFixedSize(true)
+        }
+    }
+
+    private val friendSelectedListener = object : ChatsAdapter.FriendSelectedListener{
+        override fun onFriendSelected(friend: UserInfo) {
+            activity?.startActivity(ConversationActivity.starterIntent(context!!, friend))
         }
     }
 }

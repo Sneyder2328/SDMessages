@@ -56,7 +56,7 @@ class GroupsAdapter(private val context: Context): RecyclerView.Adapter<GroupsAd
 
         fun bind(groupInfo: GroupInfo){
             nameTextView.text = groupInfo.name
-            Picasso.with(context).load(groupInfo.pictureUrl).into(pictureImageView)
+            TODO("show group img")
         }
     }
 }

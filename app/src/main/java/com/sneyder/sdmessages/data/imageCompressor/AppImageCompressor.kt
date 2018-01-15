@@ -84,7 +84,7 @@ class AppImageCompressor @Inject constructor(): ImageCompressor() {
             canvas.matrix = scaleMatrix
             canvas.drawBitmap(bmp, middleX - bmp.width / 2, middleY - bmp.height / 2, Paint(Paint.FILTER_BITMAP_FLAG))
 
-            //      check the rotation of the image and display it properly
+            // check the rotation of the image and display it properly
             val exif: ExifInterface
             try {
                 exif = ExifInterface(filePath)
@@ -116,9 +116,11 @@ class AppImageCompressor @Inject constructor(): ImageCompressor() {
             val filename = getFilename()
             try {
                 fileOutputStream = FileOutputStream(filename)
-                //          write the compressed bitmap at the destination specified by filename.
-                scaledBitmap!!.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream)
+                // write the compressed bitmap at the destination specified by filename.
+                scaledBitmap!!.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream)
+                emitter.onSuccess(File(filename))
             } catch (e: Exception) {
+                emitter.onError(e)
                 e.printStackTrace()
             } finally {
                 try {
@@ -130,7 +132,6 @@ class AppImageCompressor @Inject constructor(): ImageCompressor() {
                     e.printStackTrace()
                 }
             }
-            emitter.onSuccess(File(filename))
         })
                 .doOnSuccess { debug("doOnSuccess compressImage($filePath, $maxWidth, $maxHeight) = $it") }
                 .doOnError { error("doOnError compressImage($filePath, $maxWidth, $maxHeight) = ${it.message}") }

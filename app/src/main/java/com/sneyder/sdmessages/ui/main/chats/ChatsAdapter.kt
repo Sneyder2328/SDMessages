@@ -25,9 +25,13 @@ import android.widget.TextView
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.data.model.UserInfo
 import com.sneyder.sdmessages.utils.CircleImageView
-import com.squareup.picasso.Picasso
+import into
+import load
 
-class ChatsAdapter(private val context: Context): RecyclerView.Adapter<ChatsAdapter.ChatRoomViewHolder>() {
+class ChatsAdapter(
+        private val context: Context,
+        private val friendSelectedListener: FriendSelectedListener
+) : RecyclerView.Adapter<ChatsAdapter.ChatRoomViewHolder>() {
 
     var friends: List<UserInfo> = ArrayList()
         set(value) {
@@ -46,18 +50,25 @@ class ChatsAdapter(private val context: Context): RecyclerView.Adapter<ChatsAdap
         return ChatRoomViewHolder(view, context)
     }
 
-    class ChatRoomViewHolder(
+    inner class ChatRoomViewHolder(
             private val view: View,
             private val context: Context
-    ): RecyclerView.ViewHolder(view) {
+    ) : RecyclerView.ViewHolder(view) {
 
         private val nameTextView: TextView by lazy { view.findViewById<TextView>(R.id.nameTextView) }
         private val pictureImageView: CircleImageView by lazy { view.findViewById<CircleImageView>(R.id.pictureImageView) }
 
         fun bind(friend: UserInfo) {
             nameTextView.text = friend.displayName
-            Picasso.with(context).load(friend.photoUrl).into(pictureImageView)
+            context.load(friend.photoUrl).into(pictureImageView, { fit().centerCrop() })
+            view.setOnClickListener {
+                friendSelectedListener.onFriendSelected(friend)
+            }
         }
 
+    }
+
+    interface FriendSelectedListener {
+        fun onFriendSelected(friend: UserInfo)
     }
 }

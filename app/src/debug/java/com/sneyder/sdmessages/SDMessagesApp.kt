@@ -37,16 +37,20 @@ class SDMessagesApp: BaseApp() {
         }
     }
 
+    /**
+     * Set up strict mode for debugging
+     * Note: do not enable penaltyDeath because it cause some false positives that shoot down the app
+     */
     private fun setStrictMode() {
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
-                .penaltyDeath()
+                //.penaltyDeath()
                 .build())
         StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
-                .penaltyDeath()
+                //.penaltyDeath()
                 .build())
     }
 

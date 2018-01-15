@@ -18,6 +18,8 @@ package com.sneyder.sdmessages.data.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -27,24 +29,41 @@ data class UserInfo(
         @SerializedName("displayName") @Expose var displayName: String = "",
         @SerializedName("birthDate") @Expose var birthDate: String = "",
         @SerializedName("photoUrl") @Expose var photoUrl: String? = "",
-        @SerializedName("sessionId") @Expose var sessionId: String? = ""
-) {
-    companion object {
-        const val TABLE_NAME = "UserInfo"
+        @SerializedName("sessionId") @Expose var sessionId: String? = "",
+        @SerializedName("typeUser") @Expose var typeUser: String? = "",
+        @SerializedName("firebaseTokenId") @Expose var firebaseTokenId: String? = ""
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString())
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(userId)
+        parcel.writeString(displayName)
+        parcel.writeString(birthDate)
+        parcel.writeString(photoUrl)
+        parcel.writeString(sessionId)
+        parcel.writeString(typeUser)
+        parcel.writeString(firebaseTokenId)
     }
-}
 
-data class UserRequest(
-        val userId: String = "",
-        val displayName: String = "",
-        val email: String,
-        var password: String = "",
-        val typeLogin: String,
-        val birthDate: String = "",
-        val photoUrl: String = "",
-        val accessToken: String = ""
-)
+    override fun describeContents(): Int {
+        return 0
+    }
 
-enum class TypeLogin(val data: String){
-    GOOGLE("Google"), FACEBOOK("Facebook"), EMAIL("Email")
+    companion object CREATOR : Parcelable.Creator<UserInfo> {
+        const val TABLE_NAME = "UserInfo"
+        override fun createFromParcel(parcel: Parcel): UserInfo {
+            return UserInfo(parcel)
+        }
+
+        override fun newArray(size: Int): Array<UserInfo?> {
+            return arrayOfNulls(size)
+        }
+    }
 }

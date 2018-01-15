@@ -27,4 +27,6 @@ interface PreferencesHelper {
     fun setCurrentSessionId(sessionId: String)
     fun getCurrentSessionId(): String
 
+    fun clearPreferences()
+
 }

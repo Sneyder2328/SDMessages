@@ -41,7 +41,9 @@ class ChatsViewModel
         return add(userRepository.findMyFriends()
                 .applySchedulers()
                 .subscribeBy(
-                        onNext = { friends.value = Resource.success(it) },
+                        onNext = { resultFriends->
+                            if (resultFriends.isNotEmpty()) friends.value = Resource.success(resultFriends)
+                        },
                         onError = { friends.value = Resource.error(R.string.chats_message_error_loading_chats) }
                 )).also { firstLoad = false }
     }

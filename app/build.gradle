@@ -14,10 +14,17 @@ repositories {
 buildscript {
   repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
     maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.25.1'
+  }
+}
+
+kotlin {
+  experimental {
+    coroutines "enable"
   }
 }
 
@@ -123,6 +130,8 @@ dependencies {
 
   // Kotlin
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_coroutines_version"
 
   // Support library
   implementation "com.android.support:appcompat-v7:$support_library_version"
@@ -169,8 +178,6 @@ dependencies {
   implementation "io.reactivex.rxjava2:rxjava:$rxjava2_version"
   implementation "io.reactivex.rxjava2:rxandroid:$rxandroid2_version"
   implementation "io.reactivex.rxjava2:rxkotlin:2.1.0"
-  // rxLint(It's a useful tool that shows rxJava's related lint warnings)
-  implementation "nl.littlerobots.rxlint:rxlint:$rxlint_version"
 
   // Dagger Core
   implementation "com.google.dagger:dagger:$dagger_version"
@@ -181,10 +188,14 @@ dependencies {
   // Timber(logger)
   implementation "com.jakewharton.timber:timber:$timber_version"
 
+  // Picasso
   implementation 'com.squareup.picasso:picasso:2.5.2'
 
+  // Glide
+  implementation 'com.github.bumptech.glide:glide:4.5.0'
+  annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'
+
   // Test dependencies
-  implementation "com.android.support:support-v4:$support_library_version"
   testImplementation "junit:junit:$junit_version"
   androidTestImplementation 'com.android.support.test:runner:1.0.1'
   androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
@@ -200,10 +211,15 @@ dependencies {
   implementation "com.google.android.gms:play-services-auth:$play_services_version"
   implementation "com.google.firebase:firebase-core:$play_services_version"
 
+  // Firebase messaging service
+  implementation "com.google.firebase:firebase-messaging:$play_services_version"
+
   // Android-Job
   implementation "com.evernote:android-job:$android_job_version"
   // It's useful(and optional) so that Android-Job uses GcmNetworkManager on Android 4
   implementation "com.google.android.gms:play-services-gcm:$play_services_version"
+
+  implementation 'io.fotoapparat.fotoapparat:library:2.1.2'
 
   // JUnit Unit tests
   testImplementation "junit:junit:$junit_version"

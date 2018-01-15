@@ -17,15 +17,15 @@
 package com.sneyder.sdmessages.data.model
 
 import android.support.annotation.StringRes
-import com.sneyder.sdmessages.data.model.Status.ERROR
-import com.sneyder.sdmessages.data.model.Status.LOADING
-import com.sneyder.sdmessages.data.model.Status.SUCCESS
+import com.sneyder.sdmessages.data.model.ResourceStatus.ERROR
+import com.sneyder.sdmessages.data.model.ResourceStatus.LOADING
+import com.sneyder.sdmessages.data.model.ResourceStatus.SUCCESS
 
 /**
- * A generic class that holds a value with its loading status.
+ * A generic class that holds a value with its loading resourceStatus.
  * @param <T>
 </T> */
-data class Resource<T>(val status: Status, val data: T?, @StringRes val message:  Int?) {
+data class Resource<T>(val resourceStatus: ResourceStatus, val data: T?, @StringRes val message:  Int?) {
 
     companion object {
 
@@ -33,7 +33,7 @@ data class Resource<T>(val status: Status, val data: T?, @StringRes val message:
             return Resource(SUCCESS, data, null)
         }
 
-        fun <T> error(@StringRes msg: Int, data: T? = null): Resource<T> {
+        fun <T> error(@StringRes msg: Int? = null, data: T? = null): Resource<T> {
             return Resource(ERROR, data, msg)
         }
 
@@ -43,24 +43,4 @@ data class Resource<T>(val status: Status, val data: T?, @StringRes val message:
 
     }
 
-}
-inline fun <T>Resource<T>?.ifSuccess(func: (T) -> Unit){
-    if (this == null) return
-    if (status == SUCCESS){
-        func(data!!)
-    }
-}
-
-inline fun <T>Resource<T>?.ifError(func: (Int) -> Unit){
-    if (this == null) return
-    if (status == ERROR){
-        func(message!!)
-    }
-}
-
-inline fun <T>Resource<T>?.ifLoading(func: () -> Unit){
-    if (this == null) return
-    if (status == LOADING){
-        func()
-    }
 }

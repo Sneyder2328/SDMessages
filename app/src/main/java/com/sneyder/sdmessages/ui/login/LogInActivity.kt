@@ -32,12 +32,13 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.data.model.TypeLogin
-import com.sneyder.sdmessages.data.model.ifError
-import com.sneyder.sdmessages.data.model.ifSuccess
 import com.sneyder.sdmessages.ui.base.DaggerActivity
 import com.sneyder.sdmessages.ui.home.HomeActivity
 import com.sneyder.sdmessages.ui.main.MainActivity
 import com.sneyder.sdmessages.ui.signup.SignUpActivity
+import com.sneyder.sdmessages.utils.ifError
+import com.sneyder.sdmessages.utils.ifLoading
+import com.sneyder.sdmessages.utils.ifSuccess
 import kotlinx.android.synthetic.main.activity_log_in.*
 import org.json.JSONException
 import toast
@@ -64,11 +65,22 @@ class LogInActivity : DaggerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log_in)
+        initAWSMobileClient()
         setUpGoogleLogin()
         setUpFacebookLogin()
         logInViewModel.myUserInfo.observe(this, Observer { user ->
+            user.ifLoading {
+                logInButton.isEnabled = false
+                logInWithFacebookButton.isEnabled = false
+                logInWithGoogleButton.isEnabled = false
+            }
             user.ifSuccess { openMainActivity() }
-            user.ifError { toast(it) }
+            user.ifError {
+                it?.let{ toast(it) }
+                logInButton.isEnabled = true
+                logInWithFacebookButton.isEnabled = true
+                logInWithGoogleButton.isEnabled = true
+            }
         })
     }
 

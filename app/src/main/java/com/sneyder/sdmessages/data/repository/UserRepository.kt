@@ -24,7 +24,9 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 
-abstract class UserRepository(private val preferencesHelper: PreferencesHelper): PreferencesHelper by preferencesHelper {
+abstract class UserRepository(
+        private val preferencesHelper: PreferencesHelper
+): PreferencesHelper by preferencesHelper {
 
     abstract fun insertUser(userInfo: UserInfo): Completable
 
@@ -37,5 +39,21 @@ abstract class UserRepository(private val preferencesHelper: PreferencesHelper):
     abstract fun findMyFriends(): Flowable<List<UserInfo>>
 
     abstract fun findMyGroups(): Flowable<List<GroupInfo>>
+
+    abstract fun findUsersByName(name: String): Flowable<List<UserInfo>>
+
+    abstract fun sendFriendRequest(userId: String, sessionId: String, otherFirebaseTokenId: String, otherUserId: String, message: String): Single<String>
+
+    abstract fun updateFirebaseTokenId(userId: String, sessionId: String, firebaseTokenId: String): Single<String>
+
+    abstract fun updateUserPhotoUrl(userId: String, sessionId: String, photoUrl: String): Single<String>
+
+    abstract fun updateUserDisplayName(userId: String, sessionId: String, displayName: String): Single<String>
+
+    abstract fun acceptFriendRequest(fromUserId: String, toUserId: String, sessionId: String): Single<String>
+
+    abstract fun rejectFriendRequest(fromUserId: String, toUserId: String, sessionId: String): Single<String>
+
+    abstract fun logOut(): Single<String>
 
 }

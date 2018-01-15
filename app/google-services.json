@@ -59,6 +59,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "434477538698-l5eadocrmbb0asqg0oupt6kq78mbpagc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sneyder.sdmessages",
+            "certificate_hash": "f5ba30e54ab81d7eaf8beb7fe9f2fd21419fd327"
+          }
+        },
+        {
+          "client_id": "434477538698-sin24266gj4nir8j7p6e23hdglnp0lgt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sneyder.sdmessages",
+            "certificate_hash": "267ec476a3eeefe7fbe12209220d820f4e00dab6"
+          }
+        },
+        {
           "client_id": "434477538698-8ulu0utc36ugu3ob252o5bptt1s52clk.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -73,8 +89,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "434477538698-8ulu0utc36ugu3ob252o5bptt1s52clk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

@@ -22,7 +22,13 @@
   <item
       android:id="@+id/action_search"
       android:title="@string/main_menu_search"
-      app:actionViewClass="android.support.v7.widget.SearchView"
       android:icon="@android:drawable/ic_menu_search"
-      app:showAsAction="always"/>
+      app:showAsAction="always"
+      tools:ignore="AlwaysShowAction" />
+
+  <item
+      android:id="@+id/action_log_out"
+      android:title="@string/main_menu_log_out"
+      app:showAsAction="never"/>
+
 </menu>

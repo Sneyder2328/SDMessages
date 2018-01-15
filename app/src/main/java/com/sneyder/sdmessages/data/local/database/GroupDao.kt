@@ -32,4 +32,7 @@ abstract class GroupDao: BaseDao<GroupInfo> {
     @Query("SELECT * FROM ${GroupInfo.TABLE_NAME}")
     abstract fun findGroups(): Flowable<List<GroupInfo>>
 
+    @Query("DELETE FROM ${GroupInfo.TABLE_NAME}")
+    abstract fun deleteTable()
+
 }

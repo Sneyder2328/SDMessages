@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import com.google.android.gms.common.GoogleApiAvailability
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.ui.base.DaggerActivity
 import com.sneyder.sdmessages.ui.login.LogInActivity
@@ -41,6 +42,7 @@ class HomeActivity : DaggerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        GoogleApiAvailability.getInstance().setDefaultNotificationChannelId(this, "Channel")
         homeViewModel.ifLogged {
             openMainActivity()
         }

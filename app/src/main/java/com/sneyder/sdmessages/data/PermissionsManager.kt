@@ -32,6 +32,9 @@ import java.lang.ref.WeakReference
 class PermissionsManager(activity: Activity, lifecycleOwner: LifecycleOwner) : LifecycleObserver {
 
     companion object {
+
+        const val CAMERA = Manifest.permission.CAMERA
+
         const val WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE
 
         const val READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE"
@@ -43,11 +46,24 @@ class PermissionsManager(activity: Activity, lifecycleOwner: LifecycleOwner) : L
         lifecycleOwner.lifecycle.addObserver(this)
     }
 
-    private var listFunctions: MutableMap<Int, ()->Unit> = HashMap()
+    private var listFunctions: MutableMap<Int, () -> Unit> = HashMap()
 
     fun ifHasPermission(permissionToAskFor: String, requestCode: Int, func: () -> Unit) {
         if (isMarshmallowOrLater() && ContextCompat.checkSelfPermission(activityWeakReference.get()!!, permissionToAskFor) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activityWeakReference.get()!!, arrayOf(permissionToAskFor), requestCode)
+            listFunctions.put(requestCode, func)
+            return
+        }
+        func.invoke()
+    }
+
+    fun ifHasPermission(permissionsToAskFor: Array<String>, requestCode: Int, func: () -> Unit) {
+        val pendingPermissions = permissionsToAskFor.filter {
+            isMarshmallowOrLater() && ContextCompat.checkSelfPermission(activityWeakReference.get()!!, it) != PackageManager.PERMISSION_GRANTED
+        }.toTypedArray()
+
+        if(pendingPermissions.isNotEmpty()){
+            ActivityCompat.requestPermissions(activityWeakReference.get()!!, pendingPermissions, requestCode)
             listFunctions.put(requestCode, func)
             return
         }

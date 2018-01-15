@@ -18,6 +18,9 @@ package com.sneyder.sdmessages.di.component
 
 import android.app.Application
 import com.sneyder.sdmessages.BaseApp
+import com.sneyder.sdmessages.data.service.AppFirebaseMessagingService
+import com.sneyder.sdmessages.data.service.NotificationBroadcastReceiver
+import com.sneyder.sdmessages.data.service.NotificationIntentService
 import com.sneyder.sdmessages.di.builder.ActivityBuilder
 import com.sneyder.sdmessages.di.module.AppModule
 import dagger.BindsInstance
@@ -40,5 +43,11 @@ interface AppComponent {
     }
 
     fun inject(app: BaseApp)
+
+    fun inject(firebaseMessagingService: AppFirebaseMessagingService)
+
+    fun inject(notificationIntentService: NotificationIntentService)
+
+    fun inject(notificationBroadcastReceiver: NotificationBroadcastReceiver)
 
 }

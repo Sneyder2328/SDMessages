@@ -16,6 +16,7 @@
 
 package com.sneyder.sdmessages.di.module
 
+import android.content.Context
 import com.sneyder.sdmessages.data.remote.api.SDMessagesApi
 import dagger.Module
 import dagger.Provides
@@ -27,18 +28,25 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import com.google.gson.GsonBuilder
 import com.google.gson.Gson
-
+import com.sneyder.sdmessages.data.remote.api.ConnectivityInterceptor
 
 @Module
 class RetrofitModule {
 
     @Provides
     @Singleton
-    fun provideHttpClient(): OkHttpClient {
+    fun provideConnectivityInterceptor(context: Context): ConnectivityInterceptor
+            = ConnectivityInterceptor((context))
+
+    @Provides
+    @Singleton
+    fun provideHttpClient(connectivityInterceptor: ConnectivityInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
-                .readTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
+                .addInterceptor(connectivityInterceptor)
                 .build()
     }
     @Provides

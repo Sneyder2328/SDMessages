@@ -25,6 +25,8 @@ import com.sneyder.sdmessages.data.model.UserInfo
 import com.sneyder.sdmessages.data.model.UserRequest
 import com.sneyder.sdmessages.data.repository.UserRepository
 import com.sneyder.sdmessages.ui.base.BaseViewModel
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
 class LogInViewModel
@@ -37,13 +39,22 @@ class LogInViewModel
     val myUserInfo: MutableLiveData<Resource<UserInfo>> = MutableLiveData()
 
     fun logInUser(email: String, password: String, typeLogin: String, accessToken: String = "", userId: String = ""){
-        add(userRepository.logInUser(UserRequest(email = email, password = hasher.hash(password + email), typeLogin = typeLogin, accessToken = accessToken, userId = userId))
-                .applySchedulers()
-                .subscribe({ userInfoResult: UserInfo ->
-                    insertUserLoggedInDb(userInfoResult)
-                }, {
-                    myUserInfo.value = Resource.error(R.string.login_message_error_loggin_in)
-                }))
+        myUserInfo.value = Resource.loading()
+        launch(UI) {
+            add(userRepository.logInUser(
+                    UserRequest(
+                            email = email,
+                            password = hasher.hash(password + email).await(),
+                            typeLogin = typeLogin,
+                            accessToken = accessToken,
+                            userId = userId))
+                    .applySchedulers()
+                    .subscribe({ userInfoResult: UserInfo ->
+                        insertUserLoggedInDb(userInfoResult)
+                    }, {
+                        myUserInfo.value = Resource.error(R.string.login_message_error_loggin_in)
+                    }))
+        }
     }
 
     private fun insertUserLoggedInDb(userInfoLoggedIn: UserInfo) {

@@ -16,46 +16,34 @@
 
 package com.sneyder.sdmessages.ui.register
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
-import android.support.v4.content.FileProvider
-import android.support.v7.app.AlertDialog
 import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
-import android.widget.EditText
-import com.amazonaws.mobile.client.AWSMobileClient
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.data.PermissionsManager
 import com.sneyder.sdmessages.data.model.*
 import com.sneyder.sdmessages.ui.base.DaggerActivity
 import com.sneyder.sdmessages.ui.main.MainActivity
 import com.sneyder.sdmessages.ui.signup.SignUpActivity
 import com.sneyder.sdmessages.utils.*
 import com.squareup.picasso.Picasso
-import createImageFile
 import debug
 import generateUUID
 import gone
 import isValidEmail
 import isValidURL
 import kotlinx.android.synthetic.main.activity_register.*
-import onChangeListener
+import com.google.firebase.iid.FirebaseInstanceId
+import com.sneyder.sdmessages.utils.dialogs.SelectImageDialog
 import snackBar
 import toast
 import java.io.File
-import java.io.IOException
 import java.util.*
 
-class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
+class RegisterActivity : DaggerActivity(), android.app.DatePickerDialog.OnDateSetListener, SelectImageDialog.SelectImageListener, AddUrlImgDialog.AddUrlImgListener {
 
     companion object {
 
@@ -66,9 +54,6 @@ class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
         private const val ARG_PHOTO_URL = "photoUrl"
         private const val ARG_ACCESS_TOKEN = "accessToken"
 
-        private const val REQUEST_PICK_PHOTO = 100
-        private const val REQUEST_TAKE_PHOTO = 101
-
         fun starterIntent(context: Context, typeLogin: String = TypeLogin.EMAIL.data, userId: String? = null,
                           email: String? = null, username: String? = null, photoUrl: String? = null, accessToken: String? = null
         ) = Intent(context, RegisterActivity::class.java).apply {
@@ -78,7 +63,7 @@ class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
             username?.let { putExtra(ARG_USERNAME, it) }
             photoUrl?.let { putExtra(ARG_PHOTO_URL, it) }
             accessToken?.let { putExtra(ARG_ACCESS_TOKEN, it) }
-            }
+        }
     }
 
     private val registerViewModel by lazy { getViewModel(RegisterViewModel::class.java) }
@@ -91,21 +76,17 @@ class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
     private val accessToken: String by lazy { intent.getStringExtra(ARG_ACCESS_TOKEN) ?: "" }
     private var photoUrl: String = ""
 
-    private val permissionsManager by lazy { PermissionsManager(this@RegisterActivity, this) }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
-        AWSMobileClient.getInstance().initialize(this).execute()
+        initAWSMobileClient()
 
         setUpPhotoUrl()
 
         policyTextView.movementMethod = LinkMovementMethod.getInstance()
 
         birthDateTextView.setOnClickListener {
-            val dialogDate = DialogDate()
-            dialogDate.show(fragmentManager, "tag")
+            com.sneyder.sdmessages.utils.dialogs.DatePickerDialog().show(supportFragmentManager, "DatePickerDialog")
         }
 
         imgProfileImageView.setOnClickListener {
@@ -117,7 +98,7 @@ class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
         registerViewModel.userInfo.observe(this, Observer { user ->
             user.ifSuccess { openMainActivity() }
             user.ifError {
-                toast(it)
+                it?.let{ toast(it) }
                 signUpButton.isEnabled = true
             }
             user.ifLoading { signUpButton.isEnabled = false }
@@ -130,93 +111,31 @@ class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun showAddProfileImgDialog() {
-        AlertDialog.Builder(this).setItems(R.array.register_add_profile_img_options, { _, item ->
-            when (item) {
-                0 -> { takePhoto() }
-                1 -> { pickPhoto() }
-                2 -> showDialogAddUrlImage()
-            }
-        }).create().show()
+        SelectImageDialog.newInstance().show(supportFragmentManager, "SelectImageDialog")
     }
 
-    private var newPhotoTakenFile: File? = null
-    private fun takePhoto() {
-        permissionsManager.ifHasPermission(PermissionsManager.WRITE_EXTERNAL_STORAGE, 0, {
-            debug("it has WRITE_EXTERNAL_STORAGE ")
-            // If the app got the permission, dispatch the capture image intent
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (takePictureIntent.resolveActivity(packageManager) != null) {
-                try {
-                    newPhotoTakenFile = createImageFile(this@RegisterActivity)
-                } catch (ex: IOException) {
-                    // Error occurred while creating the File
-                    toast(R.string.register_message_error_taking_photo)
-                    return@ifHasPermission
-                }
-                // Continue only if the File was successfully created
-                val photoURI = FileProvider.getUriForFile(this,
-                        AUTHORITIES_FILE_PROVIDER,
-                        newPhotoTakenFile!!)
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
-            }
-        })
+    override fun onTakePicture(){
+        launchTakePictureIntent()
     }
 
-    @SuppressLint("NewApi")
-    private fun pickPhoto() {
-        permissionsManager.ifHasPermission(PermissionsManager.READ_EXTERNAL_STORAGE, 1, {
-            debug("it has READ_EXTERNAL_STORAGE ")
-            launchImageSelectorIntent()
-        })
+    override fun onPickImage(){
+        launchImageSelectorIntent()
     }
 
-    private fun launchImageSelectorIntent() {
-        val intent = ImageSelectorUtils.getImageSelectionIntent()
-        startActivityForResult(intent, REQUEST_PICK_PHOTO)
+    override fun onShowAddUrlImageDialog(){
+        AddUrlImgDialog.newInstance().show(supportFragmentManager, "AddUrlImgDialog")
     }
 
-    @SuppressLint("InflateParams")
-    private fun showDialogAddUrlImage(){
-        val layoutInflater = LayoutInflater.from(this)
-        val v = layoutInflater.inflate(R.layout.activity_register_add_image_url_dialog, null)
-
-        val imagePreviewImageView: CircleImageView = v.findViewById(R.id.imagePreviewImageView)
-        val imageUrlEditText: EditText = v.findViewById(R.id.imageUrlEditText)
-        imageUrlEditText.onChangeListener({
-            Picasso.with(this@RegisterActivity).load(it.toString()).into(imagePreviewImageView)
-        })
-
-        AlertDialog.Builder(this)
-                .setView(v)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    photoUrl = imageUrlEditText.text.toString()
-                    updateImgProfile(photoUrl)
-                    fileImgToUpload = null
-                }
-                .setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ -> dialog.cancel() }
-                .show()
+    override fun onUrlImgAdded(urlImg: String) {
+        photoUrl = urlImg
+        updateImgProfile(photoUrl)
+        fileImgToUpload = null
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode != Activity.RESULT_OK || data == null) return
-        fileImgToUpload = when (requestCode){
-            REQUEST_TAKE_PHOTO -> { // a new photo has been taken
-                newPhotoTakenFile // use the file used to save the photo taken
-            }
-            else -> { // a existing image has been selected
-                val selectedImage = data.data
-                val path = ImageSelectorUtils.getFilePathFromUri(this, selectedImage)
-                File(path) // get file pointing to it
-            }
-        }
+    override fun onActivityResultWithImageFile(imgPickedOrTaken: File) {
+        debug("onActivityResultWithImageFile $imgPickedOrTaken")
+        fileImgToUpload = imgPickedOrTaken
         updateImgProfile(fileImgToUpload!!.absolutePath)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionsManager.onRequestPermissionsResult(requestCode, grantResults)
     }
 
     override fun onDateSet(d: DatePicker, year: Int, month: Int, day: Int) = setDate(day, month, year)
@@ -290,7 +209,7 @@ class RegisterActivity : DaggerActivity(), DatePickerDialog.OnDateSetListener {
             photoUrl = getS3BucketWithKey(key)
             registerViewModel.uploadImage(it, key)
         }
-        registerViewModel.signUp(UserRequest(userId = userId, password = password, email = email, accessToken = accessToken,
+        registerViewModel.signUp(UserRequest(userId = userId, password = password, email = email, accessToken = accessToken, firebaseTokenId = FirebaseInstanceId.getInstance().token ?: "",
                 displayName = username, birthDate = validDateOfBirth!!.toString(), typeLogin = typeLogin, photoUrl = photoUrl))
     }
 

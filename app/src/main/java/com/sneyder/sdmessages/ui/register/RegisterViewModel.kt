@@ -21,13 +21,14 @@ import com.sneyder.sdmessages.utils.schedulers.SchedulerProvider
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.data.aws.S3FilesManager
 import com.sneyder.sdmessages.data.hashGenerator.Hasher
-import com.sneyder.sdmessages.data.imageCompressor.ImageCompressor
 import com.sneyder.sdmessages.data.model.Resource
 import com.sneyder.sdmessages.data.model.UserInfo
 import com.sneyder.sdmessages.data.model.UserRequest
 import com.sneyder.sdmessages.data.repository.UserRepository
 import com.sneyder.sdmessages.ui.base.BaseViewModel
 import io.reactivex.rxkotlin.subscribeBy
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -35,7 +36,6 @@ class RegisterViewModel
 @Inject constructor(
         private val userRepository: UserRepository,
         private val s3FilesManager: S3FilesManager,
-        private val imageCompressor: ImageCompressor,
         private val hasher: Hasher,
         schedulerProvider: SchedulerProvider
 ) : BaseViewModel(schedulerProvider) {
@@ -45,15 +45,17 @@ class RegisterViewModel
 
     fun signUp(userRequest: UserRequest) {
         userInfo.value = Resource.loading()
-        add(userRepository.signUpUser(userRequest.apply { password = hasher.hash(password + email) })
-                .applySchedulers()
-                .subscribe({ userInfoResult: UserInfo ->
-                    if (isThereAnImgBeingUploaded) userInfoSignedUp = userInfoResult
-                    else insertUserSignedUpInDb(userInfoResult)
-                }, {
-                    userInfo.value = Resource.error(R.string.register_message_error_singing_up)
-                    s3FilesManager.cancelAll()
-                }))
+        launch(UI) {
+            add(userRepository.signUpUser(userRequest.apply { password = hasher.hash(password + email).await() })
+                    .applySchedulers()
+                    .subscribe({ userInfoResult: UserInfo ->
+                        if (isThereAnImgBeingUploaded) userInfoSignedUp = userInfoResult
+                        else insertUserSignedUpInDb(userInfoResult)
+                    }, {
+                        userInfo.value = Resource.error(R.string.register_message_error_singing_up)
+                        s3FilesManager.cancelAll()
+                    }))
+        }
     }
 
     private var userInfoSignedUp: UserInfo? = null
@@ -70,16 +72,7 @@ class RegisterViewModel
 
     fun uploadImage(fileImg: File, key: String) {
         isThereAnImgBeingUploaded = true
-        add(imageCompressor.compressImage(fileImg.absolutePath, 512f, 512f)
-                .applySchedulers()
-                .subscribeBy(
-                        onSuccess = { uploadFileToS3(it, key) },
-                        onError = { isThereAnImgBeingUploaded = false }
-                ))
-    }
-
-    private fun uploadFileToS3(fileImg: File, key: String) {
-        add(s3FilesManager.uploadFile(fileImg, key)
+        add(s3FilesManager.uploadFileCompressed(fileImg, key, 512f, 512f)
                 .applySchedulers()
                 .subscribeBy(
                         onComplete = { imgUploadFinished() },

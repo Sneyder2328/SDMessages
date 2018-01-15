@@ -16,7 +16,9 @@
 
 package com.sneyder.sdmessages.di.module
 
+import com.sneyder.sdmessages.data.repository.AppMessageRepository
 import com.sneyder.sdmessages.data.repository.AppUserRepository
+import com.sneyder.sdmessages.data.repository.MessageRepository
 import com.sneyder.sdmessages.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -28,5 +30,9 @@ class RepositoriesModule {
     @Provides
     @Singleton
     fun provideUserRepository(appUserRepository: AppUserRepository): UserRepository = appUserRepository
+
+    @Provides
+    @Singleton
+    fun provideMessageRepository(appMessageRepository: AppMessageRepository): MessageRepository = appMessageRepository
 
 }

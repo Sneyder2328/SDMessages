@@ -16,10 +16,7 @@
 
 package com.sneyder.sdmessages.data.local.database
 
-import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Update
+import android.arch.persistence.room.*
 
 interface BaseDao<in T> {
 

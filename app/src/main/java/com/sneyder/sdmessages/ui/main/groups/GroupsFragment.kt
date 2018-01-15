@@ -19,10 +19,12 @@ package com.sneyder.sdmessages.ui.main.groups
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.data.model.ifSuccess
 import com.sneyder.sdmessages.ui.base.DaggerFragment
+import com.sneyder.sdmessages.utils.ifSuccess
+import kotlinx.android.synthetic.main.fragment_groups.*
 import reObserve
 
 /**
@@ -52,6 +54,15 @@ class GroupsFragment : DaggerFragment() {
         groupsViewModel.groups.reObserve(this, Observer { groups ->
             groups.ifSuccess { groupsAdapter.groups = it }
         })
+        setUpGroupsRecyclerView()
         super.onActivityCreated(savedInstanceState)
+    }
+
+    private fun setUpGroupsRecyclerView() {
+        groupsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            adapter = groupsAdapter
+            setHasFixedSize(true)
+        }
     }
 }

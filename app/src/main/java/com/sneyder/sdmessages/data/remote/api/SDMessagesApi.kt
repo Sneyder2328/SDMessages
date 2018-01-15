@@ -17,12 +17,10 @@
 package com.sneyder.sdmessages.data.remote.api
 
 import com.sneyder.sdmessages.data.model.GroupInfo
+import com.sneyder.sdmessages.data.model.Message
 import com.sneyder.sdmessages.data.model.UserInfo
 import io.reactivex.Single
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
-import retrofit2.http.Url
+import retrofit2.http.*
 
 interface SDMessagesApi {
 
@@ -38,29 +36,61 @@ interface SDMessagesApi {
 
         const val FIND_GROUPS_BY_USER_ID = "findGroupsByUserId.php"
 
+        const val FIND_USERS_BY_NAME = "findUsersByName.php"
+
+        const val SEND_FRIEND_REQUEST = "sendFriendRequest.php"
+
+        const val UPDATE_FIREBASE_TOKENID = "updateFirebaseTokenId.php"
+
+        const val ACCEPT_FRIEND_REQUEST = "acceptFriendRequest.php"
+
+        const val REJECT_FRIEND_REQUEST = "rejectFriendRequest.php"
+
+        const val FIND_MESSAGES_WITH_USER_ID = "findMessagesWithUserId.php"
+
+        const val SEND_MESSAGE_TO_FRIEND = "sendMessageToFriend.php"
+
+        const val MARK_MESSAGES_AS_READ = "markMessagesAsRead.php"
+
+        const val FIND_USER_INFO_BY_ID = "findUserInfoById.php"
+
+        const val UPDATE_USER_DISPLAY_NAME = "updateUserDisplayName.php"
+
+        const val UPDATE_USER_PHOTO_URL = "updateUserPhotoUrl.php"
+
+        const val LOG_OUT = "logOut.php"
+
     }
 
-    @POST
+    @POST(SIGN_UP_USER)
+    @FormUrlEncoded
     fun signUpUser(
-            @Url url: String = SIGN_UP_USER,
-            @Query("userId") userId: String,
-            @Query("displayName") displayName: String,
-            @Query("email") email: String,
-            @Query("password") password: String,
-            @Query("typeLogin") typeLogin: String,
-            @Query("birthDate") birthDate: String,
-            @Query("photoUrl") photoUrl: String,
-            @Query("accessToken") accessToken: String
+            @Field("userId") userId: String,
+            @Field("displayName") displayName: String,
+            @Field("email") email: String,
+            @Field("password") password: String,
+            @Field("typeLogin") typeLogin: String,
+            @Field("birthDate") birthDate: String,
+            @Field("firebaseTokenId") firebaseTokenId: String,
+            @Field("photoUrl") photoUrl: String,
+            @Field("accessToken") accessToken: String
     ): Single<UserInfo>
 
-    @POST
+    @POST(LOG_IN_USER)
+    @FormUrlEncoded
     fun logInUser(
-            @Url url: String = LOG_IN_USER,
-            @Query("email") email: String,
-            @Query("password") password: String,
-            @Query("typeLogin") typeLogin: String,
-            @Query("accessToken") accessToken: String = "",
-            @Query("userId") userId: String = ""
+            @Field("email") email: String,
+            @Field("password") password: String,
+            @Field("typeLogin") typeLogin: String,
+            @Field("accessToken") accessToken: String = "",
+            @Field("userId") userId: String = ""
+    ): Single<UserInfo>
+
+    @POST(FIND_USER_INFO_BY_ID)
+    @FormUrlEncoded
+    fun findUserInfoById(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String
     ): Single<UserInfo>
 
     @GET
@@ -76,5 +106,95 @@ interface SDMessagesApi {
             @Query("userId") userId: String,
             @Query("sessionId") sessionId: String
     ): Single<List<GroupInfo>>
+
+    @GET
+    fun findUsersByName(
+            @Url url: String = FIND_USERS_BY_NAME,
+            @Query("username") username: String
+    ): Single<List<UserInfo>>
+
+    @POST(SEND_FRIEND_REQUEST)
+    @FormUrlEncoded
+    fun sendFriendRequest(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("otherFirebaseTokenId") otherFirebaseTokenId: String,
+            @Field("otherUserId") otherUserId: String,
+            @Field("message") message: String
+    ): Single<String>
+
+    @POST(UPDATE_FIREBASE_TOKENID)
+    @FormUrlEncoded
+    fun updateFirebaseTokenId(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("firebaseTokenId") firebaseTokenId: String
+    ): Single<String>
+
+    @POST(ACCEPT_FRIEND_REQUEST)
+    @FormUrlEncoded
+    fun acceptFriendRequest(
+            @Field("fromUserId") fromUserId: String,
+            @Field("toUserId") toUserId: String,
+            @Field("sessionId") sessionId: String
+    ): Single<String>
+
+    @POST(REJECT_FRIEND_REQUEST)
+    @FormUrlEncoded
+    fun rejectFriendRequest(
+            @Field("fromUserId") fromUserId: String,
+            @Field("toUserId") toUserId: String,
+            @Field("sessionId") sessionId: String
+    ): Single<String>
+
+    @GET
+    fun findMessagesWithUserId(
+            @Url url: String = FIND_MESSAGES_WITH_USER_ID,
+            @Query("userId") userId: String,
+            @Query("sessionId") sessionId: String,
+            @Query("friendUserId") friendUserId: String
+    ): Single<List<Message>>
+
+    @POST(SEND_MESSAGE_TO_FRIEND)
+    @FormUrlEncoded
+    fun sendMessageToFriend(
+            @Field("senderId") senderId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("recipientId") recipientId: String,
+            @Field("content") content: String,
+            @Field("typeContent") typeContent: String
+    ): Single<String>
+
+    @POST(MARK_MESSAGES_AS_READ)
+    @FormUrlEncoded
+    fun markMessagesAsRead(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("friendUserId") friendUserId: String,
+            @Field("lastMessageViewedDate") lastMessageViewedDate: String
+    ): Single<String>
+
+    @POST(UPDATE_USER_DISPLAY_NAME)
+    @FormUrlEncoded
+    fun updateUserDisplayName(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("displayName") displayName: String
+    ): Single<String>
+
+    @POST(UPDATE_USER_PHOTO_URL)
+    @FormUrlEncoded
+    fun updateUserPhotoUrl(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("photoUrl") photoUrl: String
+    ): Single<String>
+
+    @POST(LOG_OUT)
+    @FormUrlEncoded
+    fun logOut(
+            @Field("userId") userId: String,
+            @Field("sessionId") sessionId: String
+    ): Single<String>
 
 }

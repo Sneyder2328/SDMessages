@@ -15,3 +15,9 @@
  */
 
 package com.sneyder.sdmessages.utils
+
+import android.widget.EditText
+
+fun EditText.clearText() {
+    setText("")
+}

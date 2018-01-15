@@ -19,13 +19,21 @@ package com.sneyder.sdmessages.data.local.database
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import com.sneyder.sdmessages.data.model.GroupInfo
+import com.sneyder.sdmessages.data.model.Message
 import com.sneyder.sdmessages.data.model.UserInfo
 
-@Database(entities = [(UserInfo::class), (GroupInfo::class)], version = 1)
+@Database(entities = [(UserInfo::class), (GroupInfo::class), (Message::class)], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
 
     abstract fun groupDao(): GroupDao
 
+    abstract fun messageDao(): MessageDao
+
+    fun clearDatabase(){
+        userDao().deleteTable()
+        groupDao().deleteTable()
+        messageDao().deleteTable()
+    }
 }

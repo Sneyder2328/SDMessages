@@ -21,7 +21,11 @@ import java.io.File
 
 abstract class S3FilesManager {
 
-    abstract fun uploadFile(file: File, key: String): Flowable<Int>
+    abstract fun uploadFileCompressed(
+            file: File,
+            key: String,
+            maxWidth: Float = 1040f,
+            maxHeight: Float = 1040f): Flowable<Int>
 
     abstract fun cancelAll()
 

@@ -48,6 +48,11 @@
     <item>Profile</item>
   </string-array>
 
+  <string-array name="search_title_fragments">
+    <item>People</item>
+    <item>Groups</item>
+  </string-array>
+
   <string name="facebook_app_id">158152681487301</string>
   <string name="fb_login_protocol_scheme">fb158152681487301</string>
   <string name="server_client_id">434477538698-8ulu0utc36ugu3ob252o5bptt1s52clk.apps.googleusercontent.com</string>
@@ -59,5 +64,31 @@
   <string name="login_warning_invalid_email">You must insert a valid email address</string>
   <string name="login_warning_missing_password">You must insert a valid password</string>
   <string name="groups_message_error_loading_groups">There was an error loading the groups</string>
+  <string name="search_people_message_error_loading_people">There was an error searching for people</string>
+  <string name="dialog_send_friend_request_hint_message">Message(optional)</string>
+  <string name="dialog_send_friend_request_title">Do you want to send a friend request to %s?</string>
+  <string name="notification_title_friend_request">You have received a new friend request</string>
+  <string name="notification_content_friend_reques">%s wants to connect with you</string>
+  <string name="notification_action_accept_friend_request">Accept</string>
+  <string name="notification_action_reject_friend_request">Reject</string>
+  <string name="dialog_receive_friend_request_title">%s has sent you a friend request</string>
+  <string name="dialog_receive_friend_request_accept">Accept</string>
+  <string name="dialog_receive_friend_request_reject">Reject</string>
+  <string name="conversation_hint_type_message">Type a message</string>
+  <string name="conversation_error_sending_message">There was an error sending the message</string>
+  <string name="conversation_error_loading_messages">There was an error loading the messages</string>
+  <string name="notification_hint_type_reply">Type a message</string>
+
+  <string name="title_activity_view_picture">ViewPictureActivity</string>
+  <string name="dummy_button">Dummy Button</string>
+  <string name="dummy_content">DUMMY\nCONTENT</string>
+  <string name="dialog_edit_name_hint_username">Username</string>
+  <string name="dialog_edit_name_title">Enter your user name</string>
+  <string name="dialog_profile_photo_title">Profile photo</string>
+  <string name="dialog_profile_photo_action_gallery">Gallery</string>
+  <string name="dialog_profile_photo_action_camera">Camera</string>
+  <string name="dialog_profile_photo_action_url">Url</string>
+  <string name="main_menu_log_out">Log out</string>
+  <string name="main_error_logging_out">There was an error loggin out</string>
 
 </resources>

@@ -18,6 +18,9 @@ package com.sneyder.sdmessages.data.hashGenerator
 
 import android.util.Base64
 import debug
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
@@ -37,7 +40,7 @@ class AppHasher : Hasher() {
             plainText: String,
             keyLength: Int, // 256-bits for AES-256, 128-bits for AES-128, etc
             iterationCount: Int
-    ): String {
+    ): Deferred<String> = async(CommonPool) {
         debug("starting at: ${System.currentTimeMillis()}")
         val keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
         val pepper: ByteArray = Base64.decode("imfa${getPepper()}", Base64.DEFAULT)
@@ -45,7 +48,6 @@ class AppHasher : Hasher() {
         val keyBytes = keyFactory.generateSecret(keySpec).encoded
         val hashed = Base64.encodeToString(SecretKeySpec(keyBytes, "AES").encoded, Base64.DEFAULT)
         debug("ending at: ${System.currentTimeMillis()} hashed = $hashed")
-        return hashed.trim()
+        hashed.trim()
     }
-
 }

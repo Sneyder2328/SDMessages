@@ -14,6 +14,7 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sneyder.sdmessages">
 
   <uses-feature
@@ -31,10 +32,10 @@
 
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.RECORD_AUDIO" />
   <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.CAMERA" />
   <!--
-  Allows Glide to monitor connective sync Status and restart failed requests if users go from a
+  Allows Glide to monitor connective sResourceStatusatus and restart failed requests if users go from a
   a disconnected to a connected network state and it's also necessary because of AWS
     -->
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -44,10 +45,10 @@
       android:allowBackup="true"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
+      android:largeHeap="true"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:supportsRtl="true"
       android:theme="@style/AppTheme">
-
     <activity
         android:name=".ui.home.HomeActivity"
         android:exported="true" />
@@ -66,17 +67,20 @@
     </activity-alias>
 
     <activity android:name=".ui.signup.SignUpActivity" />
-
     <activity android:name=".ui.register.RegisterActivity" />
-
     <activity
         android:name=".ui.main.MainActivity"
-        android:theme="@style/AppTheme.NoActionBar" />
-
+        android:launchMode="singleTask"
+        android:resizeableActivity="true"
+        android:supportsPictureInPicture="false"
+        android:theme="@style/AppTheme.NoActionBar"
+        tools:targetApi="n" />
     <activity android:name=".ui.login.LogInActivity" />
 
     <!-- Used for Amazon S3 integration -->
-    <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
+    <service
+        android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+        android:enabled="true" />
 
     <!-- Used to use URIs inside the app in android Nougat and later -->
     <provider
@@ -86,18 +90,55 @@
         android:grantUriPermissions="true">
       <meta-data
           android:name="android.support.FILE_PROVIDER_PATHS"
-          android:resource="@xml/file_paths"/>
+          android:resource="@xml/file_paths" />
     </provider>
 
     <!-- Necessary for Facebook login SDK -->
 
-    <meta-data android:name="com.facebook.sdk.ApplicationId"
-        android:value="@string/facebook_app_id"/>
+    <meta-data
+        android:name="com.facebook.sdk.ApplicationId"
+        android:value="@string/facebook_app_id" />
 
-    <activity android:name="com.facebook.FacebookActivity"
+    <activity
+        android:name="com.facebook.FacebookActivity"
         android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
         android:label="@string/app_name" />
+    <activity
+        android:name=".ui.search.SearchActivity"
+        android:theme="@style/AppTheme.NoActionBar" />
 
+    <service android:name=".data.service.AppFirebaseMessagingService">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+      </intent-filter>
+    </service>
+    <service android:name=".data.service.NotificationIdTokenService">
+      <intent-filter>
+        <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+      </intent-filter>
+    </service>
+    <service
+        android:name=".data.service.NotificationIntentService"
+        android:exported="false" />
+
+    <activity
+        android:name=".ui.conversation.ConversationActivity"
+        android:windowSoftInputMode="adjustResize" />
+
+    <receiver
+        android:name=".data.service.NotificationBroadcastReceiver"
+        android:enabled="true"
+        android:exported="false" />
+
+    <activity android:name=".ui.conversation.SendImageActivity"
+        android:theme="@style/ViewPictureTheme" />
+
+    <activity android:name=".ui.camera.TakePictureActivity"
+        android:theme="@style/TakePictureTheme" />
+    <activity
+        android:name=".ui.conversation.ViewPictureActivity"
+        android:label="@string/title_activity_view_picture"
+        android:theme="@style/ViewPictureTheme"/>
   </application>
 
 </manifest>

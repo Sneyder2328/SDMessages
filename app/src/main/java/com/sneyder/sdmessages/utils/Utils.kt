@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused" ,"NOTHING_TO_INLINE")
+@file:Suppress("unused", "NOTHING_TO_INLINE")
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -48,6 +48,8 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.support.annotation.LayoutRes
 import android.support.design.widget.Snackbar
@@ -58,6 +60,12 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.*
 import android.widget.*
+import com.sneyder.sdmessages.utils.asS3UrlIfApplicable
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.RequestCreator
+import com.squareup.picasso.Target
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -298,8 +306,6 @@ inline fun Activity.replaceFragment(
 }
 
 
-
-
 // Support Library fragments
 inline fun AppCompatActivity.addFragment(
         @IdRes containerViewId: Int,
@@ -444,8 +450,8 @@ inline fun View.toggleVisibility() {
 }
 
 @TargetApi(21)
-inline fun View.exitReveal(noinline func: (() -> Unit)? = null){
-    if (isLollipopOrLater()){
+inline fun View.exitReveal(noinline func: (() -> Unit)? = null) {
+    if (isLollipopOrLater()) {
         val cx = measuredWidth / 2
         val cy = measuredHeight / 2
 
@@ -456,19 +462,18 @@ inline fun View.exitReveal(noinline func: (() -> Unit)? = null){
         anim.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
-                if(func != null) func()
+                if (func != null) func()
             }
         })
         anim.start()
-    }
-    else{
-        if(func != null) func()
+    } else {
+        if (func != null) func()
     }
 }
 
 @TargetApi(21)
-inline fun View.enterReveal(noinline func: (() -> Unit)? = null){
-    if(isLollipopOrLater()){
+inline fun View.enterReveal(noinline func: (() -> Unit)? = null) {
+    if (isLollipopOrLater()) {
         val cx = measuredWidth / 2
         val cy = measuredHeight / 2
 
@@ -479,14 +484,13 @@ inline fun View.enterReveal(noinline func: (() -> Unit)? = null){
         anim.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
-                if(func != null) func()
+                if (func != null) func()
             }
         })
 
         visible()
         anim.start()
-    }
-    else{
+    } else {
         visible()
     }
 }
@@ -512,14 +516,13 @@ inline fun Context.hideSoftInput(view: View) {
 }
 
 inline fun Context.showSoftInput(editText: EditText? = null) {
-    if (editText != null){
+    if (editText != null) {
         editText.isFocusable = true
         editText.isFocusableInTouchMode = true
         editText.requestFocus()
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(editText, 0)
-    }
-    else {
+    } else {
         toggleSoftInput()
     }
 }
@@ -556,8 +559,10 @@ inline fun isExternalStorageWritable(): Boolean = Environment.getExternalStorage
 
 
 // Collections
-inline fun <T> Collection<T>.showValues() {
+inline fun <T> Collection<T>.showValues(label: String = "") {
+    debug("start -----------------------$label------------------------")
     forEach { debug(it) }
+    debug("end   -----------------------$label------------------------")
 }
 
 
@@ -590,12 +595,12 @@ inline val Context.defaultSharedPreferences: SharedPreferences
 inline val Fragment.defaultSharedPreferences: SharedPreferences
     get() = PreferenceManager.getDefaultSharedPreferences(activity)
 
-inline fun <T: Fragment> T.withArguments(vararg params: Pair<String, Any>): T {
+inline fun <T : Fragment> T.withArguments(vararg params: Pair<String, Any>): T {
     arguments = bundleOf(*params)
     return this
 }
 
-inline fun <T: android.support.v4.app.Fragment> T.withArguments(vararg params: Pair<String, Any>): T {
+inline fun <T : android.support.v4.app.Fragment> T.withArguments(vararg params: Pair<String, Any>): T {
     arguments = bundleOf(*params)
     return this
 }
@@ -690,10 +695,9 @@ inline fun Fragment.browse(url: String = "about:blank", newTask: Boolean = false
 inline fun Context.browse(url: String = "about:blank", newTask: Boolean = false): Boolean {
     try {
         val intent = Intent(Intent.ACTION_VIEW)
-        if(url!="about:blank" && (!url.contains("https://") || !url.contains("http://"))){
+        if (url != "about:blank" && (!url.contains("https://") || !url.contains("http://"))) {
             intent.data = Uri.parse("http://" + url)
-        }
-        else{
+        } else {
             intent.data = Uri.parse(url)
         }
         if (newTask) {
@@ -734,12 +738,12 @@ inline fun SharedPreferences.edit(func: SharedPreferences.Editor.() -> Unit) {
 /**
  * returns daysToMillis as milliseconds
  */
-infix fun Number.daysToMillis(days: Number): Long = (this.toDouble() + hoursToMillis(days.toDouble() ) * 24).toLong()
+infix fun Number.daysToMillis(days: Number): Long = (this.toDouble() + hoursToMillis(days.toDouble()) * 24).toLong()
 
 /**
  * returns hoursToMillis as milliseconds
  */
-infix fun Number.hoursToMillis(hours: Number): Long = (this.toDouble() + minutesToMillis(hours.toDouble() ) * 60).toLong()
+infix fun Number.hoursToMillis(hours: Number): Long = (this.toDouble() + minutesToMillis(hours.toDouble()) * 60).toLong()
 
 /**
  * returns minutesToMillis as milliseconds
@@ -750,7 +754,6 @@ infix fun Number.minutesToMillis(minutes: Number): Long = (this.toDouble() + sec
  * returns minutesToMillis as milliseconds
  */
 infix fun Number.secondsToMillis(seconds: Number): Long = (this.toDouble() + (seconds.toDouble() * 1000).toLong()).toLong()
-
 
 
 /**
@@ -771,7 +774,7 @@ fun minutesToMillis(minutes: Number): Long = secondsToMillis(minutes.toDouble())
 /**
  * returns minutesToMillis as milliseconds
  */
-fun secondsToMillis(seconds: Number): Long = (seconds.toDouble()* 1000).toLong()
+fun secondsToMillis(seconds: Number): Long = (seconds.toDouble() * 1000).toLong()
 
 fun String.formatted(pattern: String): String = DecimalFormat(pattern).format(this) ?: this
 
@@ -780,13 +783,13 @@ fun String.formatted(pattern: String): String = DecimalFormat(pattern).format(th
  * It receives a long with time expressed in milliseconds
  * returns a Pair with minutesToMillis and secondsToMillis in a sort of clock format
  */
-fun Long.toMinutesAndSecondsFormat(): Pair<Int, Int>{
+fun Long.toMinutesAndSecondsFormat(): Pair<Int, Int> {
     val min = (this / (1000 * 60))
     val sec = ((this / 1000) - min * 60)
     return Pair(min.toInt(), sec.toInt())
 }
 
-fun Long.toHoursAndMinutesFormat(): Pair<Int, Int>{
+fun Long.toHoursAndMinutesFormat(): Pair<Int, Int> {
     val hours = (this / (1000 * 60 * 60))
     val minutes = ((this / 1000 / 60) - (hours * 60))
     return Pair(hours.toInt(), minutes.toInt())
@@ -798,8 +801,8 @@ infix fun Long.percentageOf(number: Long): Double {
 
 fun Long.asCalendar() = Calendar.getInstance().apply { timeInMillis = this@asCalendar }!!
 
-fun newThread(block: () -> Unit){
-    object : Thread(){
+fun newThread(block: () -> Unit) {
+    object : Thread() {
         override fun run() {
             block()
         }
@@ -818,7 +821,7 @@ fun todayFromDateToDate(): Pair<Long, Long> {
 fun yesterdayFromDateToDate(): Pair<Long, Long> {
     val calendar = Calendar.getInstance()
     calendar.set(Calendar.HOUR_OF_DAY, 0)
-    calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR)-1)
+    calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 1)
     val fromDate = calendar.timeInMillis
     calendar.set(Calendar.HOUR_OF_DAY, 23)
     val toDate = calendar.timeInMillis
@@ -858,7 +861,7 @@ fun lastYearFromDateToDate(): Pair<Long, Long> {
     return Pair(fromDate, toDate)
 }
 
-fun daysBetweenCalendars(calendar1: Calendar, calendar2: Calendar): Long{
+fun daysBetweenCalendars(calendar1: Calendar, calendar2: Calendar): Long {
     val dayOne = Calendar.getInstance()
     val dayTwo = Calendar.getInstance()
     dayOne.set(Calendar.YEAR, calendar1.get(Calendar.YEAR))
@@ -874,8 +877,8 @@ fun daysBetweenCalendars(calendar1: Calendar, calendar2: Calendar): Long{
 }
 
 
-fun saveToInternalStorage(context: Context, bitmapImage: Bitmap): File {
-    val cw = ContextWrapper(context)
+fun Context.saveToInternalStorage(bitmapImage: Bitmap): File {
+    val cw = ContextWrapper(this)
     val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
     val myPath = File(directory, generateImageFileName())
     var fileOutputStream: FileOutputStream? = null
@@ -899,18 +902,48 @@ fun saveToInternalStorage(context: Context, bitmapImage: Bitmap): File {
 
 @Throws(IOException::class)
 @SuppressLint("SimpleDateFormat")
-fun createImageFile(context: Context): File {
+fun Context.createImageFile(): File {
     // Create an image file name
+    val cw = ContextWrapper(this)
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-    val imageFileName = "SDMessages_" + timeStamp + "_"
-    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    return File.createTempFile(
-            imageFileName, /* prefix */
-            ".jpg", /* suffix */
-            storageDir      /* directory */
-    )
+    val imageFileName = "SDMessages_" + timeStamp
+
+    val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+    return File(directory, generateImageFileName())
 }
 
+
+val DIR_ANDROID = "Android"
+private val DIR_DATA = "data"
+private val DIR_FILES = "files"
+private val DIR_CACHE = "cache"
+
+@Synchronized
+fun getExternalStorageAppFilesFile(context: Context?, fileName: String?): File? {
+    if (context == null) return null
+    if (fileName == null) return null
+    if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+        val dirs = buildExternalStorageAppFilesDirs(Environment.getExternalStorageDirectory().absolutePath, context.packageName)
+        return File(dirs, fileName)
+    }
+    return null
+}
+
+
+@Synchronized
+fun buildExternalStorageAppFilesDirs(externalStoragePath: String, packageName: String): File {
+    return buildPath(externalStoragePath, DIR_ANDROID, DIR_DATA, packageName, DIR_FILES)
+}
+
+
+@Synchronized
+fun buildPath(base: String, vararg segments: String): File {
+    var cur = File(base)
+    for (segment in segments) {
+        cur = File(cur, segment)
+    }
+    return cur
+}
 
 @SuppressLint("SimpleDateFormat")
 fun generateImageFileName(): String {
@@ -985,23 +1018,24 @@ fun List<String>.fromListToString(): String = TextUtils.join(", ", this)
 
 fun String.fromStringToList(): List<String> {
     var string = this.trim()
-    return if(string.isNotEmpty()){
+    return if (string.isNotEmpty()) {
         string = string.removeSuffix(",")
         string.split(",").map { it.trim() }.filter { it.isNotEmpty() && it.isNotBlank() }
-    }
-    else emptyList()
+    } else emptyList()
 }
 
-fun TextView.onChangeListener(onTextChanged: (CharSequence?) -> Unit, beforeTextChanged: (CharSequence?) -> Unit = {}, afterTextChanged: (CharSequence?) -> Unit = {}){
+fun TextView.addTextChangedListener(onTextChanged: (CharSequence) -> Unit, beforeTextChanged: (CharSequence) -> Unit = {}, afterTextChanged: (CharSequence) -> Unit = {}) {
     this.addTextChangedListener(object : TextWatcher {
         override fun afterTextChanged(afterTextChanged: Editable?) {
-            afterTextChanged(afterTextChanged)
+            afterTextChanged(afterTextChanged ?: return)
         }
+
         override fun beforeTextChanged(beforeTextChanged: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            beforeTextChanged(beforeTextChanged)
+            beforeTextChanged(beforeTextChanged ?: return)
         }
+
         override fun onTextChanged(textChanged: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            onTextChanged(textChanged)
+            onTextChanged(textChanged ?: return)
         }
     })
 }
@@ -1009,24 +1043,17 @@ fun TextView.onChangeListener(onTextChanged: (CharSequence?) -> Unit, beforeText
 /**
  * Executes a statement just is no one of the arguments passed is null
  * Examples:
-    ifNotNull("text", 45, 4.45, null){
-        println("It will NOT show up")
-    }
-    ifNotNull("text", 45, 4.45){
-        println("It will show up")
-    }
+ifNotNull("text", 45, 4.45, null){
+println("It will NOT show up")
+}
+ifNotNull("text", 45, 4.45){
+println("It will show up")
+}
  */
 fun ifNotNull(vararg items: Any?, func: () -> Unit) {
-    if(!items.contains(null))
+    if (!items.contains(null))
         func()
 }
-
-
-
-
-
-
-
 
 
 /**
@@ -1214,7 +1241,6 @@ fun <T> MutableCollection<T>.addIfNew(t: T): Boolean = when {
 }
 
 
-
 /**
  * Accepts 3 text watcher methods with default empty implementation.
  * Returns the TextWatcher added to EditText
@@ -1239,4 +1265,37 @@ fun EditText.addTextWatcher(afterTextChanged: (s: Editable?) -> Unit = { _ -> },
 
     addTextChangedListener(textWatcher)
     return textWatcher
+}
+
+fun Drawable.toBitmap(): Bitmap {
+    val bitmap = if (this.intrinsicWidth <= 0 || this.intrinsicHeight <= 0) {
+        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
+    } else {
+        Bitmap.createBitmap(this.intrinsicWidth, this.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    }
+
+    if (this is BitmapDrawable) {
+        if (this.bitmap != null) {
+            return this.bitmap
+        }
+    }
+
+    val canvas = Canvas(bitmap)
+    this.setBounds(0, 0, canvas.width, canvas.height)
+    this.draw(canvas)
+    return bitmap
+}
+
+infix fun Context.load(url: String?): Pair<Context, String>? = if (url != null && url.isNotBlank()) this to url else null
+fun Pair<Context, String>?.into(imageView: ImageView, requestCreator: RequestCreator.() -> RequestCreator = { this } ) {
+    if (this == null) return
+    launch(UI) {
+        Picasso.with(this@into.first).load(this@into.second.asS3UrlIfApplicable().await()).requestCreator().into(imageView)
+    }
+}
+infix fun Pair<Context, String>?.into(target: Target) {
+    if (this == null) return
+    launch(UI) {
+        Picasso.with(this@into.first).load(this@into.second.asS3UrlIfApplicable().await()).into(target)
+    }
 }

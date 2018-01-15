@@ -24,9 +24,9 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
-import android.graphics.drawable.BitmapDrawable
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
+import toBitmap
 
 class CircleImageView : AppCompatImageView {
 
@@ -42,7 +42,7 @@ class CircleImageView : AppCompatImageView {
         if (width == 0 || height == 0) {
             return
         }
-        val b = (drawable as BitmapDrawable).bitmap
+        val b = drawable.toBitmap()
         val bitmap = b.copy(Bitmap.Config.ARGB_8888, true)
 
         val roundBitmap = getCroppedBitmap(bitmap, width)

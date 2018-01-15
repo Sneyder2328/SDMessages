@@ -97,7 +97,7 @@ public class AnimationFactory {
                 return null;
 			}
 		}
-	};
+	}
 	 
 	
 	/**

@@ -29,10 +29,16 @@ abstract class UserDao : BaseDao<UserInfo> {
     @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE userId = :arg0")
     abstract fun findUserById(userId: String): Flowable<UserInfo>
 
-    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE userId != :arg0")
-    abstract fun findUsersByNotId(userId: String): Flowable<List<UserInfo>>
+    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE typeUser == 'Friend'")
+    abstract fun findFriends(): Flowable<List<UserInfo>>
+
+    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE displayName LIKE  '' || :arg0 || '%' AND typeUser != 'mySelf'")
+    abstract fun findUsersByName(name: String): Flowable<List<UserInfo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertUsers(vararg users: UserInfo)
+
+    @Query("DELETE FROM ${UserInfo.TABLE_NAME}")
+    abstract fun deleteTable()
 
 }

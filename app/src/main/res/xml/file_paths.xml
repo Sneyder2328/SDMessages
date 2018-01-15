@@ -16,4 +16,6 @@
   -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
   <external-path name="my_images" path="Android/data/com.sneyder.sdmessages/files/Pictures" />
+  <external-files-path name="my_images" path="images/" />
+  <files-path name="my_images" path="images/"/>
 </paths>

@@ -20,11 +20,16 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import com.sneyder.sdmessages.ViewModelProviderFactory;
 import com.sneyder.sdmessages.di.ViewModelKey;
+import com.sneyder.sdmessages.ui.conversation.ConversationViewModel;
 import com.sneyder.sdmessages.ui.home.HomeViewModel;
 import com.sneyder.sdmessages.ui.login.LogInViewModel;
 import com.sneyder.sdmessages.ui.main.MainViewModel;
 import com.sneyder.sdmessages.ui.main.chats.ChatsViewModel;
+import com.sneyder.sdmessages.ui.main.groups.GroupsViewModel;
+import com.sneyder.sdmessages.ui.main.profile.ProfileViewModel;
 import com.sneyder.sdmessages.ui.register.RegisterViewModel;
+import com.sneyder.sdmessages.ui.search.groups.SearchGroupsViewModel;
+import com.sneyder.sdmessages.ui.search.people.SearchPeopleViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -44,6 +49,26 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
+  @ViewModelKey(GroupsViewModel.class)
+  abstract ViewModel bindGroupsViewModel(GroupsViewModel groupsViewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(ProfileViewModel.class)
+  abstract ViewModel bindProfileViewModel(ProfileViewModel profileViewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(SearchGroupsViewModel.class)
+  abstract ViewModel bindSearchGroupsViewModel(SearchGroupsViewModel searchGroupsViewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(SearchPeopleViewModel.class)
+  abstract ViewModel bindSearchPeopleViewModel(SearchPeopleViewModel searchPeopleViewModel);
+
+  @Binds
+  @IntoMap
   @ViewModelKey(HomeViewModel.class)
   abstract ViewModel bindHomeViewModel(HomeViewModel homeViewModel);
 
@@ -56,6 +81,12 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(LogInViewModel.class)
   abstract ViewModel bindLogInViewModel(LogInViewModel logInViewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(ConversationViewModel.class)
+  abstract ViewModel bindConversationViewModel(ConversationViewModel conversationViewModel);
+
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelProviderFactory factory);

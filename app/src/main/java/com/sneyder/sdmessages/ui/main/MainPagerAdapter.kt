@@ -20,19 +20,24 @@ import android.content.Context
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.view.ViewGroup
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.ui.main.chats.ChatsFragment
 import com.sneyder.sdmessages.ui.main.groups.GroupsFragment
 import com.sneyder.sdmessages.ui.main.profile.ProfileFragment
+import java.lang.ref.WeakReference
 
 class MainPagerAdapter(context: Context, fragmentManager: FragmentManager): FragmentPagerAdapter(fragmentManager) {
+
+    var chatsFragmentReference : WeakReference<ChatsFragment>? = null
+    var profileFragmentReference : WeakReference<ProfileFragment>? = null
 
     private val titleFragments = context.resources.getStringArray(R.array.main_title_fragments)
 
     override fun getItem(position: Int): Fragment {
         return when(position){
-            1 -> ChatsFragment.newInstance()
-            2 -> GroupsFragment.newInstance()
+            0 -> ChatsFragment.newInstance()
+            1 -> GroupsFragment.newInstance()
             else -> ProfileFragment.newInstance()
         }
     }
@@ -40,4 +45,20 @@ class MainPagerAdapter(context: Context, fragmentManager: FragmentManager): Frag
     override fun getPageTitle(position: Int): CharSequence? = titleFragments[position]
 
     override fun getCount(): Int = titleFragments.count()
+
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        val fragment = super.instantiateItem(container, position)
+        if(fragment is ChatsFragment) chatsFragmentReference = WeakReference(fragment)
+        if(fragment is ProfileFragment) profileFragmentReference = WeakReference(fragment)
+        return fragment
+    }
+
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        chatsFragmentReference?.clear()
+        chatsFragmentReference = null
+        profileFragmentReference?.clear()
+        profileFragmentReference = null
+        super.destroyItem(container, position, `object`)
+    }
+
 }

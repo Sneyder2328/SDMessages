@@ -17,6 +17,7 @@
 package com.sneyder.sdmessages.data.hashGenerator
 
 import android.support.test.runner.AndroidJUnit4
+import kotlinx.coroutines.experimental.launch
 import org.junit.Before
 import org.junit.Test
 
@@ -36,11 +37,15 @@ class AppHasherTest {
 
     @Test
     fun hashIsTheSame() {
-        assertEquals(h.hash("u"), h.hash("u"))
+        launch {
+            assertEquals(h.hash("u").await(), h.hash("u").await())
+        }
     }
 
     @Test
     fun hashDoesNotContainSpaces(){
-        assertFalse(h.hash("u").contains(' '))
+        launch {
+            assertFalse(h.hash("u").await().contains(' '))
+        }
     }
 }

@@ -38,4 +38,8 @@ class RoomDatabaseModule {
     @Provides
     fun provideGroupDao(appDatabase: AppDatabase) = appDatabase.groupDao()
 
+    @Singleton
+    @Provides
+    fun provideMessageDao(appDatabase: AppDatabase) = appDatabase.messageDao()
+
 }

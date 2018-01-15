@@ -29,6 +29,9 @@ import com.sneyder.sdmessages.data.imageCompressor.AppImageCompressor
 import com.sneyder.sdmessages.data.imageCompressor.ImageCompressor
 import com.sneyder.sdmessages.data.local.preferences.AppPreferencesHelper
 import com.sneyder.sdmessages.data.local.preferences.PreferencesHelper
+import com.sneyder.sdmessages.data.model.FriendRequest
+import com.sneyder.sdmessages.data.rxbus.OneShotLiveDataBus
+import com.sneyder.sdmessages.data.service.AppFirebaseMessagingService
 import dagger.Module
 import dagger.Provides
 import defaultSharedPreferences
@@ -43,11 +46,11 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideSharedPreferences(context: Context) : SharedPreferences = context.defaultSharedPreferences
+    fun provideSharedPreferences(context: Context): SharedPreferences = context.defaultSharedPreferences
 
     @Provides
     @Singleton
-    fun providePreferencesHelper(appPreferencesHelper: AppPreferencesHelper) : PreferencesHelper = appPreferencesHelper
+    fun providePreferencesHelper(appPreferencesHelper: AppPreferencesHelper): PreferencesHelper = appPreferencesHelper
 
     @Provides
     @Singleton
@@ -63,5 +66,13 @@ class AppModule {
 
     @Provides
     fun provideImageCompressor(appImageCompressor: AppImageCompressor): ImageCompressor = appImageCompressor
+
+    @Provides
+    @Singleton
+    fun provideFriendRequestsBus(): OneShotLiveDataBus<FriendRequest> = OneShotLiveDataBus()
+
+    @Provides
+    @Singleton
+    fun provideNewMessagesBus(): OneShotLiveDataBus<AppFirebaseMessagingService.NewMessageData> = OneShotLiveDataBus()
 
 }

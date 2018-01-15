@@ -59,4 +59,8 @@ class AppPreferencesHelper @Inject constructor(private val sharedPreferences: Sh
         debug("getCurrentSessionId = $value")
         return value
     }
+
+    @Synchronized override fun clearPreferences() {
+        sharedPreferences.edit { clear() }
+    }
 }
