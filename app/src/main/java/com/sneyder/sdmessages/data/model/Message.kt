@@ -33,10 +33,27 @@ data class Message(
          */
         @SerializedName("dateCreated") @Expose @PrimaryKey var dateCreated: Long = 0,
         @SerializedName("dateExpiry") @Expose var dateExpiry: Long = 0,
-        var received: Boolean = false
+        var received: Boolean = false,
+        var viewed: Boolean = false
 ) {
 
     companion object {
         const val TABLE_NAME = "Message"
     }
+
+/*
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as Message
+        return messageId == that.messageId &&
+                content == that.content &&
+                typeContent == that.typeContent &&
+                recipientId == that.recipientId &&
+                senderId == that.senderId
+    }
+
+    override fun hashCode(): Int {
+        return dateCreated.toInt()
+    }*/
 }

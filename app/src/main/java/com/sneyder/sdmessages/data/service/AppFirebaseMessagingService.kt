@@ -44,20 +44,20 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
             val fromUserId = data["fromUserId"] ?: return
             val fromUserName = data["fromUserName"] ?: return
             val fromPhotoUrl = data["fromPhotoUrl"] ?: ""
-            val fromFirebaseTokenId = data["fromFirebaseTokenId"] ?: return
-            val toUserId = data["toUserId"] ?: return
+
 
             when (notificationType) {
                 NotificationType.FRIEND_REQUEST.data -> {
                     val message = data["message"] ?: ""
-                    val friendRequest = FriendRequest(fromUserId, fromUserName, fromPhotoUrl, fromFirebaseTokenId, toUserId, message)
+                    val toUserId = data["toUserId"] ?: ""
+                    val friendRequest = FriendRequest(fromUserId, fromUserName, fromPhotoUrl, toUserId, message)
                     if (!friendRequestsBus.publish(message = friendRequest))
                         showFriendRequestNotification(friendRequest)
                 }
                 NotificationType.NEW_MESSAGE.data -> {
                     val content = data["content"] ?: ""
                     val typeContent = data["typeContent"] ?: ""
-                    val newMessageData = NewMessageData(fromUserId, fromUserName, fromPhotoUrl, fromFirebaseTokenId, content, typeContent)
+                    val newMessageData = NewMessageData(fromUserId, fromUserName, fromPhotoUrl, content, typeContent)
                     if (!newMessagesBus.publish(fromUserId, newMessageData))
                         showNewMessageNotification(newMessageData)
                 }
@@ -89,5 +89,5 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
         NEW_MESSAGE("newMessage")
     }
 
-    data class NewMessageData(var fromUserId: String, var fromUserName: String, var fromPhotoUrl: String, var fromFirebaseTokenId: String, var content: String, var typeContent: String)
+    data class NewMessageData(var fromUserId: String, var fromUserName: String, var fromPhotoUrl: String, var content: String, var typeContent: String, var fromGroup: Boolean = false)
 }

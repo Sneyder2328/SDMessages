@@ -69,7 +69,7 @@ class ProfilePhotoDialog: BottomSheetDialogFragment() {
             parentFragment is SelectImageListener -> parentFragment as SelectImageListener
             context is SelectImageListener -> context as SelectImageListener
             activity is SelectImageListener -> activity as SelectImageListener
-            else -> null
+            else -> throw NoOnDateSetListenerException()
         }
     }
 

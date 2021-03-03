@@ -51,7 +51,7 @@ class PermissionsManager(activity: Activity, lifecycleOwner: LifecycleOwner) : L
     fun ifHasPermission(permissionToAskFor: String, requestCode: Int, func: () -> Unit) {
         if (isMarshmallowOrLater() && ContextCompat.checkSelfPermission(activityWeakReference.get()!!, permissionToAskFor) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activityWeakReference.get()!!, arrayOf(permissionToAskFor), requestCode)
-            listFunctions.put(requestCode, func)
+            listFunctions[requestCode] = func
             return
         }
         func.invoke()
@@ -64,7 +64,7 @@ class PermissionsManager(activity: Activity, lifecycleOwner: LifecycleOwner) : L
 
         if(pendingPermissions.isNotEmpty()){
             ActivityCompat.requestPermissions(activityWeakReference.get()!!, pendingPermissions, requestCode)
-            listFunctions.put(requestCode, func)
+            listFunctions[requestCode] = func
             return
         }
         func.invoke()

@@ -17,11 +17,13 @@
 package com.sneyder.sdmessages.data.model
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import debug
 
 @Entity(tableName = UserInfo.TABLE_NAME)
 data class UserInfo(
@@ -33,6 +35,18 @@ data class UserInfo(
         @SerializedName("typeUser") @Expose var typeUser: String? = "",
         @SerializedName("firebaseTokenId") @Expose var firebaseTokenId: String? = ""
 ) : Parcelable {
+
+    @Ignore
+    fun isFriend(): Boolean {
+        val v = typeUser == TypeUser.FRIEND.data
+        debug("isFriend = $v for $this")
+        return v
+    }
+
+    @Ignore
+    fun isMySelf() = typeUser == TypeUser.MYSELF.data
+
+
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),

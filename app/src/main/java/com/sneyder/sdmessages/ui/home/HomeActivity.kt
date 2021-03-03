@@ -26,6 +26,7 @@ import com.sneyder.sdmessages.ui.base.DaggerActivity
 import com.sneyder.sdmessages.ui.login.LogInActivity
 import com.sneyder.sdmessages.ui.main.MainActivity
 import com.sneyder.sdmessages.ui.signup.SignUpActivity
+import debug
 
 class HomeActivity : DaggerActivity() {
 
@@ -37,7 +38,7 @@ class HomeActivity : DaggerActivity() {
 
     }
 
-    private val homeViewModel by lazy { getViewModel(HomeViewModel::class.java) }
+    private val homeViewModel by lazy { getViewModel<HomeViewModel>() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -66,7 +66,7 @@ class RegisterViewModel
                 .subscribe({
                     userInfo.value = Resource.success(userInfoSignedUp.apply { sessionId = "" }) // Don't save the sessionId in the db because It's saved as ciphertext in the prefs
                 }, {
-                    userInfo.value = Resource.error(R.string.register_message_error_singing_up)
+                    error("Very weird error inserting in user in the local database")
                 }))
     }
 

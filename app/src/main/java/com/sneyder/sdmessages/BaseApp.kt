@@ -34,8 +34,8 @@ abstract class BaseApp: MultiDexApplication(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize Leak Canary
-        if (initLeakCanary()) return
+        // Initialize Leak Canary / Commented because of being annoying
+        //if (initLeakCanary()) return
 
         // Inject Dagger2 dependencies
         appComponent = AppInjector.init(this)

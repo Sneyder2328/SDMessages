@@ -23,11 +23,9 @@ data class FriendRequest(
         val fromUserId: String,
         val fromUserName: String,
         val fromPhotoUrl: String,
-        val fromFirebaseTokenId: String,
         val toUserId: String,
         val message: String) : Parcelable {
     constructor(parcel: Parcel) : this(
-            parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
@@ -38,7 +36,6 @@ data class FriendRequest(
         parcel.writeString(fromUserId)
         parcel.writeString(fromUserName)
         parcel.writeString(fromPhotoUrl)
-        parcel.writeString(fromFirebaseTokenId)
         parcel.writeString(toUserId)
         parcel.writeString(message)
     }

@@ -23,15 +23,11 @@ import android.os.Build
 import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.view.View
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.request.RequestOptions
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.ui.base.BaseActivity
 import com.squareup.picasso.Picasso
 import debug
 import isJellyBeanOrLater
-import isValidURL
 import kotlinx.android.synthetic.main.activity_send_image.*
 import java.io.File
 
@@ -87,7 +83,7 @@ class SendImageActivity : BaseActivity() {
 
     override fun onBackPressed() {
         // When pressing back
-        // If path contains my package name(it means that the file is in my app internal storage)
+        // If path contains my package groupName(it means that the file is in my app internal storage)
         if(path.contains("com.sneyder.sdmessages")) {
             // then delete the image file to save space
             val deleteImage = fileImage?.delete()

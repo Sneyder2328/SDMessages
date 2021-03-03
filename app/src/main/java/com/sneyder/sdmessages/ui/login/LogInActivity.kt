@@ -59,7 +59,7 @@ class LogInActivity : DaggerActivity() {
     }
 
     private lateinit var googleSignInClient: GoogleSignInClient
-    private val logInViewModel by lazy { getViewModel(LogInViewModel::class.java) }
+    private val logInViewModel by lazy { getViewModel<LogInViewModel>() }
     private val callbackManager by lazy { CallbackManager.Factory.create() }
 
     override fun onCreate(savedInstanceState: Bundle?) {

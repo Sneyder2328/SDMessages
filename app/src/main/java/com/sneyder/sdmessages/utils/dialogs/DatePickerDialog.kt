@@ -44,7 +44,7 @@ class DatePickerDialog : DialogFragment() {
             parentFragment is DatePickerDialog.OnDateSetListener -> parentFragment as DatePickerDialog.OnDateSetListener
             context is DatePickerDialog.OnDateSetListener -> context as DatePickerDialog.OnDateSetListener
             activity is DatePickerDialog.OnDateSetListener -> activity as DatePickerDialog.OnDateSetListener
-            else -> null
+            else -> throw NoOnDateSetListenerException()
         }
     }
 }

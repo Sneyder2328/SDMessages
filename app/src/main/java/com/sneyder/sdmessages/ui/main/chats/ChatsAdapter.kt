@@ -23,27 +23,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.data.model.UserInfo
+import com.sneyder.sdmessages.data.model.Contact
 import com.sneyder.sdmessages.utils.CircleImageView
 import into
 import load
 
 class ChatsAdapter(
         private val context: Context,
-        private val friendSelectedListener: FriendSelectedListener
+        private val chatSelectedListener: ChatSelectedListener
 ) : RecyclerView.Adapter<ChatsAdapter.ChatRoomViewHolder>() {
 
-    var friends: List<UserInfo> = ArrayList()
+    var contacts: List<Contact> = ArrayList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
     override fun onBindViewHolder(holder: ChatRoomViewHolder?, position: Int) {
-        holder?.bind(friends[holder.adapterPosition])
+        holder?.bind(contacts[holder.adapterPosition])
     }
 
-    override fun getItemCount(): Int = friends.count()
+    override fun getItemCount(): Int = contacts.count()
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ChatRoomViewHolder {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.fragment_chats_item, parent, false)
@@ -58,17 +58,17 @@ class ChatsAdapter(
         private val nameTextView: TextView by lazy { view.findViewById<TextView>(R.id.nameTextView) }
         private val pictureImageView: CircleImageView by lazy { view.findViewById<CircleImageView>(R.id.pictureImageView) }
 
-        fun bind(friend: UserInfo) {
-            nameTextView.text = friend.displayName
-            context.load(friend.photoUrl).into(pictureImageView, { fit().centerCrop() })
+        fun bind(contact: Contact) {
+            nameTextView.text = contact.name
+            pictureImageView.setImageResource(R.drawable.ic_user_img_profile)
+            context.load(contact.pictureUrl).into(pictureImageView, { fit().centerCrop() })
             view.setOnClickListener {
-                friendSelectedListener.onFriendSelected(friend)
+                chatSelectedListener.onChatSelected(contact)
             }
         }
-
     }
 
-    interface FriendSelectedListener {
-        fun onFriendSelected(friend: UserInfo)
+    interface ChatSelectedListener {
+        fun onChatSelected(contact: Contact)
     }
 }

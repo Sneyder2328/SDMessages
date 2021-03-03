@@ -21,6 +21,7 @@ import com.sneyder.sdmessages.data.model.Message
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
 import android.widget.ImageView
 import android.widget.TextView
 import com.sneyder.sdmessages.R
@@ -54,9 +55,30 @@ class ConversationAdapter(
             notifyDataSetChanged()
         }
 
-    fun addMessage(message: Message){
-        messages.add(message)
-        notifyItemInserted(messages.lastIndex)
+    fun addMessage(message: Message) {
+        debug("addMessage($message: Message)")
+        var positionInList = -1
+
+        messages.forEachIndexed { index, msg ->
+            if (msg.dateCreated == message.dateCreated) positionInList = index
+        }
+
+        if (positionInList >= 0) {
+            //messages.set(positionInList, message)
+            //notifyItemChanged(positionInList)
+        } else {
+            messages.add(message)
+            notifyItemInserted(messages.lastIndex)
+        }
+    }
+
+    fun deleteMessage(message: Message) {
+        var index = 0
+        messages.forEachIndexed { i, msg ->
+            if (msg == message) index = i
+        }
+        messages.remove(message)
+        notifyItemRemoved(index)
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder?, position: Int) {
@@ -65,15 +87,15 @@ class ConversationAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): MessageViewHolder {
-        val view = if(viewType == RECEIVED_MESSAGE) parent!!.inflate(R.layout.activity_conversation_message_in_item, false)
+        val view = if (viewType == RECEIVED_MESSAGE) parent!!.inflate(R.layout.activity_conversation_message_in_item, false)
         else parent!!.inflate(R.layout.activity_conversation_message_out_item, false)
         return MessageViewHolder(view)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (messages[position].received) {
+        return if (messages[position].received)
             RECEIVED_MESSAGE
-        } else SENT_MESSAGE
+        else SENT_MESSAGE
     }
 
     override fun getItemCount(): Int = messages.count()
@@ -82,12 +104,18 @@ class ConversationAdapter(
             private val view: View
     ) : RecyclerView.ViewHolder(view) {
 
-       // private val imgDownloadProgressBar: ProgressBar by lazy { view.findViewById<ProgressBar>(R.id.imgDownloadProgressBar) }
-       // private val imgUploadProgressBar: ProgressBar? by lazy { view.findViewById<ProgressBar>(R.id.imgUploadProgressBar) }
+        // private val imgDownloadProgressBar: ProgressBar by lazy { view.findViewById<ProgressBar>(R.id.imgDownloadProgressBar) }
+        // private val imgUploadProgressBar: ProgressBar? by lazy { view.findViewById<ProgressBar>(R.id.imgUploadProgressBar) }
         private val contentImageView: ImageView by lazy { view.findViewById<ImageView>(R.id.contentImageView) }
         private val contentTextView: TextView by lazy { view.findViewById<TextView>(R.id.contentTextView) }
 
-        fun bind(message: Message) {
+        fun bind(message: Message) {/*
+            val alpha = 1.0f - message.secondsSinceRead.toFloat() / 10.0f
+            val animation1 = AlphaAnimation(alpha + 0.1f, alpha)
+            animation1.duration = 200
+            animation1.fillAfter = true
+            view.startAnimation(animation1)*/
+            debug("bind message = $message")
             val size = (Math.min(activityContext.screenWidth(), activityContext.screenHeight()) * 0.70).toInt()
             contentImageView.setDimensions(size, size)
             contentImageView.setOnClickListener {
@@ -97,6 +125,7 @@ class ConversationAdapter(
                 message.typeContent == TypeContent.TEXT.data -> {
                     contentTextView.text = message.content
                     contentImageView.visibility = View.GONE
+                    markMessageAsViewed(message)
                 }
                 message.typeContent == TypeContent.IMAGE.data -> {
                     contentTextView.visibility = View.GONE
@@ -110,8 +139,14 @@ class ConversationAdapter(
                                 .noFade().into(contentImageView, object : Callback {
                             override fun onSuccess() {
                                 debug("load img onSuccess")
-                                Picasso.with(activityContext).load(url).fit().centerCrop().into(contentImageView)
+                                Picasso.with(activityContext).load(url).fit().centerCrop().into(contentImageView, object: Callback{
+                                    override fun onSuccess() {
+                                        markMessageAsViewed(message)
+                                    }
+                                    override fun onError() {}
+                                })
                             }
+
                             override fun onError() {}
                         })
                     }
@@ -120,6 +155,13 @@ class ConversationAdapter(
                     contentTextView.visibility = View.GONE
                     Picasso.with(activityContext).load(File(message.content)).fit().centerCrop().into(contentImageView)
                 }
+            }
+        }
+
+        private fun markMessageAsViewed(message: Message) {
+            if (!message.viewed) {
+                message.viewed = true
+                conversationViewModel.updateMessage(message)
             }
         }
 

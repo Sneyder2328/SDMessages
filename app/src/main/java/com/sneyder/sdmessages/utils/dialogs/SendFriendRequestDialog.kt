@@ -63,7 +63,7 @@ class SendFriendRequestDialog: DialogFragment() {
             parentFragment is SendFriendRequestListener -> parentFragment as SendFriendRequestListener
             context is SendFriendRequestListener -> context as SendFriendRequestListener
             activity is SendFriendRequestListener -> activity as SendFriendRequestListener
-            else -> null
+            else -> throw NoOnDateSetListenerException()
         }
     }
 

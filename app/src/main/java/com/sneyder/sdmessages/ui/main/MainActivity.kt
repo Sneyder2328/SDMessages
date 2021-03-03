@@ -34,6 +34,7 @@ import com.sneyder.sdmessages.data.model.FriendRequest
 import com.sneyder.sdmessages.data.rxbus.OneShotLiveDataBus
 import com.sneyder.sdmessages.ui.base.DaggerActivity
 import com.sneyder.sdmessages.ui.home.HomeActivity
+import com.sneyder.sdmessages.ui.main.new_group.NewGroupActivity
 import com.sneyder.sdmessages.ui.search.SearchActivity
 import com.sneyder.sdmessages.utils.*
 import com.sneyder.sdmessages.utils.dialogs.ReceiveFriendRequestDialog
@@ -68,7 +69,7 @@ class MainActivity : DaggerActivity(), HasSupportFragmentInjector, ReceiveFriend
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
-    private val mainViewModel by lazy { getViewModel(MainViewModel::class.java) }
+    private val mainViewModel by lazy { getViewModel<MainViewModel>() }
     private val mainPagerAdapter by lazy { MainPagerAdapter(this@MainActivity, supportFragmentManager) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +90,6 @@ class MainActivity : DaggerActivity(), HasSupportFragmentInjector, ReceiveFriend
         observeIncomingFriendRequestResult()
         observeLoggingOut()
     }
-
 
     private fun subscribeToIncomingFriendRequests() {
         friendRequestsBus.subscribe(lifecycleOwner = this, observer = Observer { friendRequest ->
@@ -157,6 +157,8 @@ class MainActivity : DaggerActivity(), HasSupportFragmentInjector, ReceiveFriend
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when(item?.itemId){
             R.id.action_search -> openSearchActivity()
+            R.id.action_new_group -> openNewGroupActivity()
+            R.id.action_settings -> {}
             R.id.action_log_out -> logOut()
         }
         return super.onOptionsItemSelected(item)
@@ -164,6 +166,10 @@ class MainActivity : DaggerActivity(), HasSupportFragmentInjector, ReceiveFriend
 
     private fun openSearchActivity() {
         startActivity(SearchActivity.starterIntent(this@MainActivity))
+    }
+
+    private fun openNewGroupActivity() {
+        startActivity(NewGroupActivity.starterIntent(this@MainActivity))
     }
 
     private fun logOut() {

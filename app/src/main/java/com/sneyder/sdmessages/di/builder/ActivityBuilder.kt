@@ -21,12 +21,10 @@ import com.sneyder.sdmessages.ui.home.HomeActivity
 import com.sneyder.sdmessages.ui.login.LogInActivity
 import com.sneyder.sdmessages.ui.main.MainActivity
 import com.sneyder.sdmessages.ui.main.chats.ChatsFragmentProvider
-import com.sneyder.sdmessages.ui.main.groups.GroupsFragmentProvider
+import com.sneyder.sdmessages.ui.main.new_group.NewGroupActivity
 import com.sneyder.sdmessages.ui.main.profile.ProfileFragmentProvider
 import com.sneyder.sdmessages.ui.register.RegisterActivity
 import com.sneyder.sdmessages.ui.search.SearchActivity
-import com.sneyder.sdmessages.ui.search.groups.SearchGroupsFragmentProvider
-import com.sneyder.sdmessages.ui.search.people.SearchPeopleFragmentProvider
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -45,9 +43,12 @@ abstract class ActivityBuilder {
     @ContributesAndroidInjector()
     abstract fun bindConversationActivity(): ConversationActivity
 
-    @ContributesAndroidInjector(modules = [(ChatsFragmentProvider::class), (GroupsFragmentProvider::class), (ProfileFragmentProvider::class)])
+    @ContributesAndroidInjector()
+    abstract fun bindNewGroupActivity(): NewGroupActivity
+
+    @ContributesAndroidInjector(modules = [(ChatsFragmentProvider::class), (ProfileFragmentProvider::class)])
     abstract fun bindMainActivity(): MainActivity
 
-    @ContributesAndroidInjector(modules = [(SearchPeopleFragmentProvider::class), (SearchGroupsFragmentProvider::class)])
+    @ContributesAndroidInjector()
     abstract fun bindSearchActivity(): SearchActivity
 }

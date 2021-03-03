@@ -65,7 +65,7 @@ class EditNameDialog: DialogFragment() {
             parentFragment is EditNameListener -> parentFragment as EditNameListener
             context is EditNameListener -> context as EditNameListener
             activity is EditNameListener -> activity as EditNameListener
-            else -> null
+            else -> throw NoOnDateSetListenerException()
         }
     }
 

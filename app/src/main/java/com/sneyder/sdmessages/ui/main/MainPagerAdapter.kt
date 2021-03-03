@@ -23,7 +23,6 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.ViewGroup
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.ui.main.chats.ChatsFragment
-import com.sneyder.sdmessages.ui.main.groups.GroupsFragment
 import com.sneyder.sdmessages.ui.main.profile.ProfileFragment
 import java.lang.ref.WeakReference
 
@@ -37,7 +36,6 @@ class MainPagerAdapter(context: Context, fragmentManager: FragmentManager): Frag
     override fun getItem(position: Int): Fragment {
         return when(position){
             0 -> ChatsFragment.newInstance()
-            1 -> GroupsFragment.newInstance()
             else -> ProfileFragment.newInstance()
         }
     }

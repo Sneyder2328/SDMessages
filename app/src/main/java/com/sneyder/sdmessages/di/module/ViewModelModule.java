@@ -25,11 +25,10 @@ import com.sneyder.sdmessages.ui.home.HomeViewModel;
 import com.sneyder.sdmessages.ui.login.LogInViewModel;
 import com.sneyder.sdmessages.ui.main.MainViewModel;
 import com.sneyder.sdmessages.ui.main.chats.ChatsViewModel;
-import com.sneyder.sdmessages.ui.main.groups.GroupsViewModel;
+import com.sneyder.sdmessages.ui.main.new_group.NewGroupViewModel;
 import com.sneyder.sdmessages.ui.main.profile.ProfileViewModel;
 import com.sneyder.sdmessages.ui.register.RegisterViewModel;
-import com.sneyder.sdmessages.ui.search.groups.SearchGroupsViewModel;
-import com.sneyder.sdmessages.ui.search.people.SearchPeopleViewModel;
+import com.sneyder.sdmessages.ui.search.SearchViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -49,8 +48,9 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(GroupsViewModel.class)
-  abstract ViewModel bindGroupsViewModel(GroupsViewModel groupsViewModel);
+  @ViewModelKey(NewGroupViewModel.class)
+  abstract ViewModel bindNewGroupViewModel(NewGroupViewModel newGroupViewModel);
+
 
   @Binds
   @IntoMap
@@ -59,13 +59,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(SearchGroupsViewModel.class)
-  abstract ViewModel bindSearchGroupsViewModel(SearchGroupsViewModel searchGroupsViewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SearchPeopleViewModel.class)
-  abstract ViewModel bindSearchPeopleViewModel(SearchPeopleViewModel searchPeopleViewModel);
+  @ViewModelKey(SearchViewModel.class)
+  abstract ViewModel bindSearchPeopleViewModel(SearchViewModel searchViewModel);
 
   @Binds
   @IntoMap

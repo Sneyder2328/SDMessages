@@ -100,19 +100,11 @@ class ProfileFragment : DaggerFragment(), EditNameDialog.EditNameListener, Profi
     }
 
     override fun onTakePicture() {
-        debug("onTakePicture")
         (activity as BaseActivity).launchTakePictureIntent()
     }
 
     override fun onPickImage() {
-        debug("onPickImage")
         (activity as BaseActivity).launchImageSelectorIntent()
-    }
-
-    fun onActivityResultWithImageFile(imgPickedOrTaken: File) {
-        debug("onActivityResultWithImageFile $imgPickedOrTaken")
-        profileViewModel.uploadImage(imgPickedOrTaken)
-        //Picasso.with(context).load(imgPickedOrTaken).fit().centerCrop().into(imgProfileImageView)
     }
 
     override fun onShowAddUrlImageDialog() {
@@ -122,4 +114,10 @@ class ProfileFragment : DaggerFragment(), EditNameDialog.EditNameListener, Profi
     override fun onUrlImgAdded(urlImg: String) {
         context?.load(urlImg).into(imgProfileImageView)
     }
+
+    fun onActivityResultWithImageFile(imgPickedOrTaken: File) {
+        debug("onActivityResultWithImageFile $imgPickedOrTaken")
+        profileViewModel.uploadImage(imgPickedOrTaken)
+    }
+
 }

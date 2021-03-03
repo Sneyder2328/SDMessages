@@ -18,16 +18,15 @@ package com.sneyder.sdmessages.ui.conversation
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.data.model.UserInfo
 import com.sneyder.sdmessages.ui.base.DaggerActivity
 import kotlinx.android.synthetic.main.activity_conversation.*
 import addTextChangedListener
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.support.v7.widget.LinearLayoutManager
+import com.sneyder.sdmessages.data.model.Contact
 import com.sneyder.sdmessages.data.model.Message
 import com.sneyder.sdmessages.data.model.TypeContent
 import com.sneyder.sdmessages.data.rxbus.OneShotLiveDataBus
@@ -50,11 +49,11 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
 
         private const val REQUEST_SEND_IMAGE = 10
 
-        private const val EXTRA_FRIEND = "friendUserId"
+        private const val EXTRA_CONTACT = "contact"
 
-        fun starterIntent(context: Context, friendUserInfo: UserInfo): Intent {
+        fun starterIntent(context: Context, contact: Contact): Intent {
             val starter = Intent(context, ConversationActivity::class.java)
-            starter.putExtra(EXTRA_FRIEND, friendUserInfo)
+            starter.putExtra(EXTRA_CONTACT, contact)
             return starter
         }
 
@@ -62,7 +61,7 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
 
         fun starterIntent(context: Context, newMessageData: AppFirebaseMessagingService.NewMessageData): Intent {
             val starter = Intent(context, ConversationActivity::class.java)
-            starter.putExtra(EXTRA_FRIEND, UserInfo(userId = newMessageData.fromUserId, photoUrl = newMessageData.fromPhotoUrl, displayName = newMessageData.fromUserName))
+            starter.putExtra(EXTRA_CONTACT, Contact(id = newMessageData.fromUserId, pictureUrl = newMessageData.fromPhotoUrl, name = newMessageData.fromUserName, isGroup = false))
             starter.putExtra(EXTRA_CONTENT_NEW_MESSAGE, newMessageData.content)
             return starter
         }
@@ -70,9 +69,9 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
     }
 
     @Inject lateinit var newMessagesBus: OneShotLiveDataBus<AppFirebaseMessagingService.NewMessageData>
-    private val conversationViewModel by lazy { getViewModel(ConversationViewModel::class.java) }
+    private val conversationViewModel by lazy { getViewModel<ConversationViewModel>() }
     private val messagesAdapter by lazy { ConversationAdapter(this, conversationViewModel) }
-    private val friend: UserInfo by lazy { intent.getParcelableExtra<UserInfo>(EXTRA_FRIEND) }
+    private val contact: Contact by lazy { intent.getParcelableExtra<Contact>(EXTRA_CONTACT) }
     private var btnActionSend = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,10 +108,10 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
             }
         })
 
-        actionButton.setColorFilter(Color.parseColor("#757575"))
+        //actionButton.setColorFilter(Color.parseColor("#757575"))
         actionButton.setOnClickListener {
             if (btnActionSend) {
-                conversationViewModel.sendMessageToFriend(friend.userId, newMessageEditText.text.toString(), TypeContent.TEXT.data)
+                conversationViewModel.sendMessage(contact, newMessageEditText.text.toString(), TypeContent.TEXT.data)
             } else {
                 showSelectImgDialog()
             }
@@ -125,7 +124,7 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
                 debug("forEach img key = ${img.key} img value data = ${img.value.data}")
                 img.value.ifSuccess {
                     debug("ifSuccess img key = ${img.key} img value data = ${img.value.data}")
-                    conversationViewModel.sendMessageToFriend(friend.userId, img.key, TypeContent.IMAGE.data)
+                    conversationViewModel.sendMessage(contact, img.key, TypeContent.IMAGE.data)
                 }
                 img.value.ifLoading {
                     debug("ifLoading img key = ${img.key} img value data = ${img.value.data}")
@@ -137,13 +136,8 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
         })
     }
 
-    override fun onDestroy() {
-        debug("ConversationActivity onDestroy")
-        super.onDestroy()
-    }
-
     private fun loadMessages() {
-        conversationViewModel.loadMessagesWithFriend(friend.userId)
+        conversationViewModel.loadMessages(contact)
     }
 
     private fun observeSendMessageStatus() {
@@ -168,26 +162,36 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
 
     private var lastMessagesViewed: MutableList<Message> = ArrayList()
 
+
     private fun observeMessages() {
         conversationViewModel.messages.distinc().observe(this, Observer { resultMessages ->
             resultMessages.ifLoading { }
             resultMessages.ifSuccess { messages ->
                 messages.showValues("resultMessages.ifSuccess messages")
-                //messagesAdapter.messages = messages
-                val newMessages = messages.filter { !lastMessagesViewed.contains(it) }
-                newMessages.forEach {
-                    messagesAdapter.addMessage(it)
-//                    showMessage(it)
+                val newMessages = messages.filter { msg->
+                    lastMessagesViewed.forEach {
+                        if (it.dateCreated == msg.dateCreated) return@filter false
+                    }
+                    if(lastMessagesViewed.isEmpty()) return@filter true
+                    return@filter true
                 }
                 newMessages.showValues("newMessages")
-                lastMessagesViewed.plusAssign(newMessages)
+                newMessages.forEach {
+                    messagesAdapter.addMessage(it)
+                }/*
+                val updatedMessages = messages.forEachIndexed { i, msg->
+                    if(lastMessagesViewed.contains(msg)){
+                        if(lastMessagesViewed.ge)
+                    }
+                }*/
+                lastMessagesViewed.addAll(newMessages)
                 lastMessagesViewed.showValues("lastMessagesViewed")
                 scrollDownMessagesContainer()
             }
             resultMessages.ifError { it?.let{ toast(it) } }
         })
-        newMessagesBus.subscribe(friend.userId, this, Observer {
-            debug("new message coming for ${friend.userId}")
+        newMessagesBus.subscribe(contact.id, this, Observer {
+            debug("new message coming for ${contact.id}")
             loadMessages()
         })
     }
@@ -231,11 +235,11 @@ class ConversationActivity : DaggerActivity(), SelectImageDialog.SelectImageList
             val path = data?.getStringExtra(SendImageActivity.EXTRA_PATH)
             debug("onActivityResult url=$url path=$path")
             if (url!!.isNotBlank()){
-                conversationViewModel.sendMessageToFriend(friend.userId, url, TypeContent.IMAGE.data)
+                conversationViewModel.sendMessage(contact, url, TypeContent.IMAGE.data)
             }
             else {
                 val bucketKey = conversationViewModel.uploadImage(path!!)
-                conversationViewModel.saveTempSendingMessage(pathImg = path, bucketKey = bucketKey, typeContent = TypeContent.IMAGE_LOCAL.data, recipientId = friend.userId)
+                conversationViewModel.saveTempSendingMessage(pathImg = path, bucketKey = bucketKey, typeContent = TypeContent.IMAGE_LOCAL.data, recipientId = contact.id)
             }
         }
     }

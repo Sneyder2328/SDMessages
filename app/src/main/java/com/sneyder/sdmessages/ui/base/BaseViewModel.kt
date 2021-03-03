@@ -47,7 +47,6 @@ abstract class BaseViewModel(val schedulersProvider: SchedulerProvider): ViewMod
      * Adds a disposable to compositeDisposable
      */
     fun add(disposable: Disposable): Boolean {
-
         return compositeDisposable.add(disposable)
     }
 

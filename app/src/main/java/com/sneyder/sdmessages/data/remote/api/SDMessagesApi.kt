@@ -38,9 +38,10 @@ interface SDMessagesApi {
 
         const val FIND_USERS_BY_NAME = "findUsersByName.php"
 
+        const val FIND_GROUPS_BY_NAME = "findGroupsByName.php"
+
         const val SEND_FRIEND_REQUEST = "sendFriendRequest.php"
 
-        const val UPDATE_FIREBASE_TOKENID = "updateFirebaseTokenId.php"
 
         const val ACCEPT_FRIEND_REQUEST = "acceptFriendRequest.php"
 
@@ -48,9 +49,13 @@ interface SDMessagesApi {
 
         const val FIND_MESSAGES_WITH_USER_ID = "findMessagesWithUserId.php"
 
+        const val FIND_MESSAGES_WITH_GROUP_ID = "findMessagesWithGroupId.php"
+
         const val SEND_MESSAGE_TO_FRIEND = "sendMessageToFriend.php"
 
-        const val MARK_MESSAGES_AS_READ = "markMessagesAsRead.php"
+        const val SEND_MESSAGE_TO_GROUP = "sendMessageToGroup.php"
+
+        const val DELETE_MESSAGE_FROM_SERVER = "deleteMessageFromServer.php"
 
         const val FIND_USER_INFO_BY_ID = "findUserInfoById.php"
 
@@ -58,7 +63,11 @@ interface SDMessagesApi {
 
         const val UPDATE_USER_PHOTO_URL = "updateUserPhotoUrl.php"
 
+        const val UPDATE_FIREBASE_TOKENID = "updateFirebaseTokenId.php"
+
         const val LOG_OUT = "logOut.php"
+
+        const val CREATE_NEW_GROUP = "createNewGroup.php"
 
     }
 
@@ -110,8 +119,14 @@ interface SDMessagesApi {
     @GET
     fun findUsersByName(
             @Url url: String = FIND_USERS_BY_NAME,
-            @Query("username") username: String
+            @Query("name") name: String
     ): Single<List<UserInfo>>
+
+    @GET
+    fun findGroupsByName(
+            @Url url: String = FIND_GROUPS_BY_NAME,
+            @Query("name") name: String
+    ): Single<List<GroupInfo>>
 
     @POST(SEND_FRIEND_REQUEST)
     @FormUrlEncoded
@@ -155,6 +170,14 @@ interface SDMessagesApi {
             @Query("friendUserId") friendUserId: String
     ): Single<List<Message>>
 
+    @GET
+    fun findMessagesWithGroupId(
+            @Url url: String = FIND_MESSAGES_WITH_GROUP_ID,
+            @Query("userId") userId: String,
+            @Query("sessionId") sessionId: String,
+            @Query("groupId") groupId: String
+    ): Single<List<Message>>
+
     @POST(SEND_MESSAGE_TO_FRIEND)
     @FormUrlEncoded
     fun sendMessageToFriend(
@@ -165,9 +188,19 @@ interface SDMessagesApi {
             @Field("typeContent") typeContent: String
     ): Single<String>
 
-    @POST(MARK_MESSAGES_AS_READ)
+    @POST(SEND_MESSAGE_TO_GROUP)
     @FormUrlEncoded
-    fun markMessagesAsRead(
+    fun sendMessageToGroup(
+            @Field("senderId") senderId: String,
+            @Field("sessionId") sessionId: String,
+            @Field("recipientGroupId") recipientGroupId: String,
+            @Field("content") content: String,
+            @Field("typeContent") typeContent: String
+    ): Single<String>
+
+    @POST(DELETE_MESSAGE_FROM_SERVER)
+    @FormUrlEncoded
+    fun deleteMessageFromServer(
             @Field("userId") userId: String,
             @Field("sessionId") sessionId: String,
             @Field("friendUserId") friendUserId: String,
@@ -196,5 +229,17 @@ interface SDMessagesApi {
             @Field("userId") userId: String,
             @Field("sessionId") sessionId: String
     ): Single<String>
+
+    @POST(CREATE_NEW_GROUP)
+    @FormUrlEncoded
+    fun createNewGroup(
+            @Field("groupId") groupId: String,
+            @Field("name") name: String,
+            @Field("adminId") adminId: String,
+            @Field("adminSessionId") adminSessionId: String,
+            @Field("pictureUrl") pictureUrl: String,
+            @Field("typeAccess") typeAccess: String,
+            @Field("password") password: String
+    ): Single<GroupInfo>
 
 }

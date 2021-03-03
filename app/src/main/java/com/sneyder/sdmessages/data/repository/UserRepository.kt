@@ -30,6 +30,8 @@ abstract class UserRepository(
 
     abstract fun insertUser(userInfo: UserInfo): Completable
 
+    abstract fun insertGroup(groupInfo: GroupInfo): Completable
+
     abstract fun logInUser(user: UserRequest): Single<UserInfo>
 
     abstract fun signUpUser(user: UserRequest): Single<UserInfo>
@@ -42,6 +44,8 @@ abstract class UserRepository(
 
     abstract fun findUsersByName(name: String): Flowable<List<UserInfo>>
 
+    abstract fun findGroupsByName(name: String): Flowable<List<GroupInfo>>
+
     abstract fun sendFriendRequest(userId: String, sessionId: String, otherFirebaseTokenId: String, otherUserId: String, message: String): Single<String>
 
     abstract fun updateFirebaseTokenId(userId: String, sessionId: String, firebaseTokenId: String): Single<String>
@@ -53,6 +57,8 @@ abstract class UserRepository(
     abstract fun acceptFriendRequest(fromUserId: String, toUserId: String, sessionId: String): Single<String>
 
     abstract fun rejectFriendRequest(fromUserId: String, toUserId: String, sessionId: String): Single<String>
+
+    abstract fun createNewGroup(groupId: String, name: String, pictureUrl: String): Single<GroupInfo>
 
     abstract fun logOut(): Single<String>
 

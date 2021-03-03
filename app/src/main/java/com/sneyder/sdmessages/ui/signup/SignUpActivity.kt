@@ -87,11 +87,11 @@ class SignUpActivity : BaseActivity() {
             try {
                 val picture: JSONObject? = jsonObject.getJSONObject("picture")
                 val url = picture?.getJSONObject("data")?.get("url")?.toString() ?: ""
-                val name = jsonObject.getString("name")
+                val name = jsonObject.getString("groupName")
                 val email = jsonObject.getString("email")
                 val id = jsonObject.getString("id")
                 debug("onSuccess FacebookCallback token=${currentAccessToken.token}")
-                debug("newMeRequest name=$name email=$email id=$id picture=$picture  url = $url")
+                debug("newMeRequest groupName=$name email=$email id=$id picture=$picture  url = $url")
                 LoginManager.getInstance().logOut() // Signed in successfully, logOut and open RegisterActivity.
                 startActivity(RegisterActivity.starterIntent(this@SignUpActivity, TypeLogin.FACEBOOK.data, email = email,
                         userId = id, username = name, photoUrl = url, accessToken = currentAccessToken.token))
@@ -101,7 +101,7 @@ class SignUpActivity : BaseActivity() {
             }
         }
         val parameters = Bundle()
-        parameters.putString("fields", "id,name,email,picture.width(512)")
+        parameters.putString("fields", "id,groupName,email,picture.width(512)")
         request.parameters = parameters
         request.executeAsync()
     }

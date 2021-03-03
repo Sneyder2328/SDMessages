@@ -39,15 +39,13 @@ class AppMessageRepository
         val apiCall = sdMessagesApi.findMessagesWithUserId(userId = userId, sessionId = sessionId, friendUserId = friendUserId)
                 .doOnSuccess { messages ->
                     debug("doOnSuccess online findMessagesWithUserId(userId = $userId, sessionId = $sessionId, friendUserId = $friendUserId) = $messages")
-                    debug("markMessagesAsRead = " + markMessagesAsRead(userId = userId, sessionId = sessionId, friendUserId = friendUserId, lastMessageViewedDate = messages.maxBy { it.dateCreated }?.dateCreated ?: 0).blockingGet())
                     messages.map { it.received = (it.recipientId == preferencesHelper.getCurrentUserId()) }
                     messageDao.insertMessages(*messages.toTypedArray())
                 }
                 .doOnError { error("doOnError online findMessagesWithUserId(userId = $userId, sessionId = $sessionId, friendUserId = $friendUserId) = ${it.message}") }
                 .onErrorReturn {
-                    debug("doOnError online return local db")
+                    debug("doOnError online findMessagesWithUserId return local db")
                     messageDao.findMessagesWithUserId(userId, friendUserId).blockingFirst()
-                    //emptyList()
                 }
                 .toFlowable()
 
@@ -57,19 +55,45 @@ class AppMessageRepository
                 .doOnComplete { debug("doOnComplete findMessagesWithUserId") }
     }
 
-    override fun sendMessageToFriend(senderId: String, sessionId: String, recipientId: String, content: String, typeContent: String): Single<String> {
-        return sdMessagesApi.sendMessageToFriend(senderId = senderId, sessionId = sessionId, recipientId = recipientId, content = content, typeContent = typeContent)
-                .doOnSuccess { date->
-                    debug("doOnSuccess sendMessageToFriend(senderId = $senderId, sessionId = $sessionId, recipientId = $recipientId, content = $content, typeContent = $typeContent) = $date")
-                    saveMessage(Message(content = content, senderId = senderId, recipientId = recipientId, typeContent = typeContent, dateCreated = date.toLong())).blockingAwait()
+    override fun findMessagesWithGroupId(userId: String, sessionId: String, groupId: String): Flowable<List<Message>> {
+        val apiCall = sdMessagesApi.findMessagesWithGroupId(userId = userId, sessionId = sessionId, groupId = groupId)
+                .doOnSuccess { messages ->
+                    debug("doOnSuccess online findMessagesWithUserId(userId = $userId, sessionId = $sessionId, groupId = $groupId) = $messages")
+                    messages.map { it.received = (it.recipientId == preferencesHelper.getCurrentUserId()) }
+                    messageDao.insertMessages(*messages.toTypedArray())
                 }
-                .doOnError { error("doOnError sendMessageToFriend(senderId = $senderId, sessionId = $sessionId, recipientId = $recipientId, content = $content, typeContent = $typeContent) = ${it.message}") }
+                .doOnError { error("doOnError online findMessagesWithUserId(userId = $userId, sessionId = $sessionId, groupId = $groupId) = ${it.message}") }
+                .onErrorReturn {
+                    debug("doOnError online findMessagesWithUserId return local db")
+                    messageDao.findMessagesWithUserId(userId, groupId).blockingFirst()
+                }
+                .toFlowable()
+
+        return Flowable.merge(messageDao.findMessagesWithUserId(userId, groupId), apiCall)
+                .doOnNext { debug("doOnNext findMessagesWithUserId($userId, $groupId) = $it") }
+                .doOnError { error("doOnError findMessagesWithUserId($userId, $groupId) = ${it.message}") }
+                .doOnComplete { debug("doOnComplete findMessagesWithUserId") }
     }
 
-    override fun markMessagesAsRead(userId: String, sessionId: String, friendUserId: String, lastMessageViewedDate: Long): Single<String> {
-        return sdMessagesApi.markMessagesAsRead(userId, sessionId, friendUserId, lastMessageViewedDate.toString())
-                .doOnSuccess { debug("doOnSuccess markMessagesAsRead($userId, $sessionId, $friendUserId, $lastMessageViewedDate) = $it") }
-                .doOnError { error("doOnError markMessagesAsRead($userId, $sessionId, $friendUserId, $lastMessageViewedDate) = ${it.message}") }
+    override fun sendMessage(senderId: String, sessionId: String, recipientId: String, content: String, typeContent: String, isRecipientAGroup: Boolean): Single<String> {
+        debug("sendMessage($senderId: String, $sessionId: String, $recipientId: String, $content: String, $typeContent: String, $isRecipientAGroup)")
+        val sendMessage = if (isRecipientAGroup) {
+            sdMessagesApi.sendMessageToGroup(senderId = senderId, sessionId = sessionId, recipientGroupId = recipientId, content = content, typeContent = typeContent)
+        } else {
+            sdMessagesApi.sendMessageToFriend(senderId = senderId, sessionId = sessionId, recipientId = recipientId, content = content, typeContent = typeContent)
+        }
+        return sendMessage
+                .doOnSuccess { date ->
+                    debug("doOnSuccess sendMessage(senderId = $senderId, sessionId = $sessionId, recipientId = $recipientId, content = $content, typeContent = $typeContent, isRecipientAGroup = $isRecipientAGroup) = $date")
+                    saveMessage(Message(content = content, senderId = senderId, recipientId = recipientId, typeContent = typeContent, dateCreated = date.toLong())).blockingAwait()
+                }
+                .doOnError { error("doOnError sendMessage(senderId = $senderId, sessionId = $sessionId, recipientId = $recipientId, content = $content, typeContent = $typeContent, isRecipientAGroup = $isRecipientAGroup) = ${it.message}") }
+    }
+
+    override fun deleteMessageFromServer(userId: String, sessionId: String, friendUserId: String, lastMessageViewedDate: Long): Single<String> {
+        return sdMessagesApi.deleteMessageFromServer(userId, sessionId, friendUserId, lastMessageViewedDate.toString())
+                .doOnSuccess { debug("doOnSuccess deleteMessageFromServer($userId, $sessionId, $friendUserId, $lastMessageViewedDate) = $it") }
+                .doOnError { error("doOnError deleteMessageFromServer($userId, $sessionId, $friendUserId, $lastMessageViewedDate) = ${it.message}") }
     }
 
     override fun saveMessage(message: Message): Completable {
@@ -82,6 +106,24 @@ class AppMessageRepository
         return Completable.fromAction { messageDao.update(message) }
                 .doOnComplete { debug("doOnComplete updateMessage($message)") }
                 .doOnError { error("doOnError updateMessage($message) = ${it.message}") }
+    }
+
+    override fun findAllMessages(): Flowable<List<Message>> {
+        return messageDao.findMessages()
+                .doOnNext { debug("doOnNext findAllMessages() = $it") }
+                .doOnError { error("doOnError findAllMessages(${it.message})") }
+    }
+
+    override fun updateMessagesWith1SecondMore(): Completable {
+        return Completable.fromAction { /*messageDao.updateMessagesWith1SecondMore()*/ }
+                .doOnComplete { debug("doOnComplete updateMessagesWith1SecondMore()") }
+                .doOnError { error("doOnError updateMessagesWith1SecondMore() = ${it.message}") }
+    }
+
+    override fun deleteViewedMessages(): Completable {
+        return Completable.fromAction { /*messageDao.deleteViewedMessages()*/ }
+                .doOnComplete { debug("doOnComplete deleteViewedMessages()") }
+                .doOnError { error("doOnError deleteViewedMessages() = ${it.message}") }
     }
 
 }

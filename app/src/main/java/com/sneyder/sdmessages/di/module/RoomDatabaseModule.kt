@@ -28,7 +28,7 @@ class RoomDatabaseModule {
 
     @Singleton
     @Provides
-    fun provideAppDatabase(application: Application) = Room.databaseBuilder(application, AppDatabase::class.java, "SDMessagesDB.db").build()
+    fun provideAppDatabase(application: Application) = Room.databaseBuilder(application, AppDatabase::class.java, "DB.db").build()
 
     @Singleton
     @Provides

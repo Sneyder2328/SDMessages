@@ -25,12 +25,20 @@ abstract class MessageRepository {
 
     abstract fun findMessagesWithUserId(userId: String, sessionId: String, friendUserId: String): Flowable<List<Message>>
 
-    abstract fun sendMessageToFriend(senderId: String, sessionId: String, recipientId: String, content: String, typeContent: String): Single<String>
+    abstract fun findMessagesWithGroupId(userId: String, sessionId: String, groupId: String): Flowable<List<Message>>
 
-    abstract fun markMessagesAsRead(userId: String, sessionId: String, friendUserId: String, lastMessageViewedDate: Long): Single<String>
+    abstract fun findAllMessages(): Flowable<List<Message>>
+
+    abstract fun sendMessage(senderId: String, sessionId: String, recipientId: String, content: String, typeContent: String, isRecipientAGroup: Boolean): Single<String>
+
+    abstract fun deleteMessageFromServer(userId: String, sessionId: String, friendUserId: String, lastMessageViewedDate: Long): Single<String>
 
     abstract fun saveMessage(message: Message): Completable
 
     abstract fun updateMessage(message: Message): Completable
+
+    abstract fun updateMessagesWith1SecondMore(): Completable
+
+    abstract fun deleteViewedMessages(): Completable
 
 }

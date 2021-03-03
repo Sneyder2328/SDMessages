@@ -26,6 +26,7 @@ import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.ui.base.BaseActivity
 import createImageFile
 import debug
+import invisible
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.parameter.Flash
@@ -92,8 +93,12 @@ class TakePictureActivity : AppCompatActivity() {
             toggleFlash()
         }
 
-        adjustViewsVisibility()
         if(isJellyBeanOrLater()) overlapNavigationAndStatusBar()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adjustViewsVisibility()
     }
 
     private fun overlapNavigationAndStatusBar() {
@@ -137,11 +142,11 @@ class TakePictureActivity : AppCompatActivity() {
 
     private fun toggleFlash() {
         fotoapparat.updateConfiguration(
-                UpdateConfiguration(flashMode = if (isFlashOn) off() else torch())
+                UpdateConfiguration(flashMode = firstAvailable(if (isFlashOn) off() else torch(), off()))
         )
         isFlashOn = !isFlashOn
         debug("Flash is now $isFlashOn")
-        switchFlashButton.setImageResource(if(isFlashOn) R.drawable.ic_flash_off else R.drawable.ic_flash_on)
+        switchFlashButton.setImageResource(if(isFlashOn) R.drawable.ic_flash_on else R.drawable.ic_flash_off)
     }
 
     override fun onStart() {

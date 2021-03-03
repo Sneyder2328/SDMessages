@@ -26,13 +26,13 @@ import io.reactivex.Flowable
 @Dao
 abstract class UserDao : BaseDao<UserInfo> {
 
-    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE userId = :arg0")
+    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE userId = :userId")
     abstract fun findUserById(userId: String): Flowable<UserInfo>
 
     @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE typeUser == 'Friend'")
     abstract fun findFriends(): Flowable<List<UserInfo>>
 
-    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE displayName LIKE  '' || :arg0 || '%' AND typeUser != 'mySelf'")
+    @Query("SELECT * FROM ${UserInfo.TABLE_NAME} WHERE displayName LIKE  '' || :name || '%' AND typeUser != 'mySelf'")
     abstract fun findUsersByName(name: String): Flowable<List<UserInfo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

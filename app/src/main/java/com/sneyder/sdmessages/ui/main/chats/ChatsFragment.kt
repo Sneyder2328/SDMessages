@@ -21,10 +21,11 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import com.sneyder.sdmessages.R
-import com.sneyder.sdmessages.data.model.UserInfo
+import com.sneyder.sdmessages.data.model.Contact
 import com.sneyder.sdmessages.ui.base.DaggerFragment
 import com.sneyder.sdmessages.ui.conversation.ConversationActivity
 import com.sneyder.sdmessages.utils.ifSuccess
+import debug
 import kotlinx.android.synthetic.main.fragment_chats.*
 import reObserve
 
@@ -47,20 +48,25 @@ class ChatsFragment : DaggerFragment() {
 
     override fun getLayoutRes(): Int = R.layout.fragment_chats
 
-    private val chatsViewModel by lazy { getViewModel(ChatsViewModel::class.java) }
+    private val chatsViewModel by lazy { getViewModel<ChatsViewModel>() }
 
     private val chatRoomsAdapter by lazy { ChatsAdapter(context!!, friendSelectedListener) }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        loadChats()
-        chatsViewModel.friends.reObserve(this, Observer { chatRooms ->
-            chatRooms?.ifSuccess { chatRoomsAdapter.friends = it }
+        chatsViewModel.chatsLiveData.reObserve(this, Observer { contacts ->
+            contacts?.ifSuccess { chatRoomsAdapter.contacts = it.filterNotNull() }
         })
         setUpChatsRecyclerView()
         super.onActivityCreated(savedInstanceState)
     }
 
+    override fun onResume() {
+        loadChats()
+        super.onResume()
+    }
+
     fun loadChats(forceUpdate: Boolean = false) {
+        debug("loadChats($forceUpdate)")
         chatsViewModel.loadChats(forceUpdate)
     }
 
@@ -72,9 +78,9 @@ class ChatsFragment : DaggerFragment() {
         }
     }
 
-    private val friendSelectedListener = object : ChatsAdapter.FriendSelectedListener{
-        override fun onFriendSelected(friend: UserInfo) {
-            activity?.startActivity(ConversationActivity.starterIntent(context!!, friend))
+    private val friendSelectedListener = object : ChatsAdapter.ChatSelectedListener {
+        override fun onChatSelected(contact: Contact) {
+            activity?.startActivity(ConversationActivity.starterIntent(context!!, contact))
         }
     }
 }

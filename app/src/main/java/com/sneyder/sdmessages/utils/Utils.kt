@@ -903,7 +903,7 @@ fun Context.saveToInternalStorage(bitmapImage: Bitmap): File {
 @Throws(IOException::class)
 @SuppressLint("SimpleDateFormat")
 fun Context.createImageFile(): File {
-    // Create an image file name
+    // Create an image file groupName
     val cw = ContextWrapper(this)
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
     val imageFileName = "SDMessages_" + timeStamp
@@ -1299,3 +1299,6 @@ infix fun Pair<Context, String>?.into(target: Target) {
         Picasso.with(this@into.first).load(this@into.second.asS3UrlIfApplicable().await()).into(target)
     }
 }
+fun <T> List<T>.filterDistinctTo(otherList: List<T>): List<T> = filter { !otherList.contains(it) }
+
+fun <T> List<T>.filterDistinctTos(otherList: List<T>): List<T> = otherList.distinctBy { this }

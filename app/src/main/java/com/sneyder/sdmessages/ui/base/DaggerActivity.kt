@@ -27,6 +27,6 @@ abstract class DaggerActivity : BaseActivity(), Injectable {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    fun <T: ViewModel> getViewModel(viewModelClass: Class<T>): T =
-            ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
+    inline fun <reified T: ViewModel> getViewModel(): T =
+            ViewModelProviders.of(this, viewModelFactory).get(T::class.java)
 }

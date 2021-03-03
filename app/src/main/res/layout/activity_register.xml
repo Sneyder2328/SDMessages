@@ -45,13 +45,15 @@
           android:adjustViewBounds="true"
           android:src="@mipmap/ic_launcher"/>
 
-      <ImageView
-          android:id="@+id/imgProfileCameraImageView"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:padding="22dp"
+      <android.support.design.widget.FloatingActionButton
+          android:id="@+id/imgProfileCameraButton"
+          android:layout_width="56dp"
+          android:layout_height="56dp"
+          android:layout_gravity="end|bottom"
+          app:backgroundTint="@color/colorPrimary"
           app:srcCompat="@drawable/ic_add_profile_photo"
-          tools:ignore="ContentDescription" />
+          android:tint="#fff"
+          android:padding="8dp"/>
 
     </FrameLayout>
 

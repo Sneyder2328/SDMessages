@@ -66,7 +66,7 @@ class RegisterActivity : DaggerActivity(), android.app.DatePickerDialog.OnDateSe
         }
     }
 
-    private val registerViewModel by lazy { getViewModel(RegisterViewModel::class.java) }
+    private val registerViewModel by lazy { getViewModel<RegisterViewModel>() }
     private var fileImgToUpload: File? = null
     private var validDateOfBirth: Long? = null
     private val typeLogin: String by lazy { intent.getStringExtra(ARG_TYPE_LOGIN) }
@@ -83,13 +83,14 @@ class RegisterActivity : DaggerActivity(), android.app.DatePickerDialog.OnDateSe
 
         setUpPhotoUrl()
 
+        // allow link in the privacy policy to be clickable
         policyTextView.movementMethod = LinkMovementMethod.getInstance()
 
         birthDateTextView.setOnClickListener {
             com.sneyder.sdmessages.utils.dialogs.DatePickerDialog().show(supportFragmentManager, "DatePickerDialog")
         }
 
-        imgProfileImageView.setOnClickListener {
+        imgProfileCameraButton.setOnClickListener {
             showAddProfileImgDialog()
         }
 
@@ -216,12 +217,12 @@ class RegisterActivity : DaggerActivity(), android.app.DatePickerDialog.OnDateSe
     private fun updateImgProfile(pathOrUrl: String) {
         debug("updateImgProfile pathOrUrl = $pathOrUrl")
         if(pathOrUrl.isValidURL()) {
-            Picasso.with(this@RegisterActivity).load(pathOrUrl).into(imgProfileImageView)
+            Picasso.with(this@RegisterActivity).load(pathOrUrl).fit().centerCrop().into(imgProfileImageView)
         }
         else{
-            Picasso.with(this@RegisterActivity).load(File(pathOrUrl)).into(imgProfileImageView)
+            Picasso.with(this@RegisterActivity).load(File(pathOrUrl)).fit().centerCrop().into(imgProfileImageView)
         }
-        imgProfileCameraImageView.gone()
+        imgProfileCameraButton.gone()
     }
 
 }

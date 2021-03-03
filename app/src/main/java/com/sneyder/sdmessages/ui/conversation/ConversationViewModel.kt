@@ -19,6 +19,7 @@ package com.sneyder.sdmessages.ui.conversation
 import android.arch.lifecycle.MutableLiveData
 import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.data.aws.S3FilesManager
+import com.sneyder.sdmessages.data.model.Contact
 import com.sneyder.sdmessages.data.model.Message
 import com.sneyder.sdmessages.data.model.Resource
 import com.sneyder.sdmessages.data.repository.MessageRepository
@@ -29,7 +30,6 @@ import com.sneyder.sdmessages.utils.generateKeyForS3
 import com.sneyder.sdmessages.utils.getS3BucketWithKey
 import com.sneyder.sdmessages.utils.schedulers.SchedulerProvider
 import debug
-import generateUUID
 import io.reactivex.rxkotlin.subscribeBy
 import showValues
 import java.io.File
@@ -46,8 +46,8 @@ data class TempMessage(
         var dateExpiry: Long = 0,
         var received: Boolean = false)
 
-fun TempMessage.toMessage(): Message{
-    return Message(content = pathImg, dateCreated = dateCreated, messageId = messageId, recipientId = recipientId, senderId = senderId,typeContent = typeContent, dateExpiry = dateExpiry, received = received)
+fun TempMessage.toMessage(): Message {
+    return Message(content = pathImg, dateCreated = dateCreated, messageId = messageId, recipientId = recipientId, senderId = senderId, typeContent = typeContent, dateExpiry = dateExpiry, received = received)
 }
 
 
@@ -62,9 +62,9 @@ class ConversationViewModel
     val sendMessageStatus: SingleLiveEvent<Resource<String>> = SingleLiveEvent()
     private var isThereAnImgBeingUploaded = false
 
-    fun sendMessageToFriend(recipientId: String, content: String, typeContent: String){
+    fun sendMessage(contact: Contact, content: String, typeContent: String) {
         sendMessageStatus.value = Resource.loading()
-        add(messageRepository.sendMessageToFriend(userRepository.getCurrentUserId(), userRepository.getCurrentSessionId(), recipientId, content, typeContent)
+        add(messageRepository.sendMessage(userRepository.getCurrentUserId(), userRepository.getCurrentSessionId(), recipientId = contact.id, content =  content, typeContent =  typeContent, isRecipientAGroup = false)
                 .applySchedulers()
                 .subscribeBy(
                         onSuccess = { sendMessageStatus.value = Resource.success(it) },
@@ -75,15 +75,19 @@ class ConversationViewModel
     val messages: MutableLiveData<Resource<List<Message>>> = MutableLiveData()
     private var lastMessageIdReceived = 0
 
-    fun loadMessagesWithFriend(friendUserId: String){
+    fun loadMessages(contact: Contact) {
+        debug("loadMessages($contact)")
         messages.value = Resource.loading()
-        add(messageRepository.findMessagesWithUserId(userRepository.getCurrentUserId(), userRepository.getCurrentSessionId(), friendUserId)
+        val loadMessages =
+                if(contact.isGroup) messageRepository.findMessagesWithUserId(userRepository.getCurrentUserId(), userRepository.getCurrentSessionId(), contact.id)
+                else messageRepository.findMessagesWithUserId(userRepository.getCurrentUserId(), userRepository.getCurrentSessionId(), contact.id)
+        add(loadMessages
                 .applySchedulers()
                 .subscribeBy(
-                        onNext = { resultMessages->
+                        onNext = { resultMessages ->
                             resultMessages.showValues("resultMessages")
                             lastMessageIdReceived = resultMessages.maxBy { it.messageId }?.messageId ?: 0
-                            resultMessages.forEach { msg->
+                            resultMessages.forEach { msg ->
                                 tempSendingMessages = tempSendingMessages.filterNot { it.bucketKey == msg.content }.toMutableList()
                             }
                             tempSendingMessages.showValues("tempSendingMessages")
@@ -100,7 +104,7 @@ class ConversationViewModel
         val fileImg = File(path)
         val key = generateKeyForS3()
         val bucketWithKey = getS3BucketWithKey(key)
-        imgsBeingUploadedMap.put(bucketWithKey, Resource.loading())
+        imgsBeingUploadedMap[bucketWithKey] = Resource.loading()
         isThereAnImgBeingUploaded = true
         add(s3FilesManager.uploadFileCompressed(fileImg, key)
                 .applySchedulers()
@@ -132,11 +136,11 @@ class ConversationViewModel
         tempSendingMessages.add(message)
     }
 
-    fun updateMessage(message: Message){
+    fun updateMessage(message: Message) {
         add(messageRepository.updateMessage(message)
                 .applySchedulers()
                 .subscribeBy(
-                        onError = {  },
+                        onError = { },
                         onComplete = {}
                 ))
     }

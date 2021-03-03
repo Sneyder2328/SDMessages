@@ -36,7 +36,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginEnd="8dp"
             android:textSize="@dimen/text_message_size"
-            tools:text="Message"/>
+            tools:text="@tools:sample/lorem"/>
 
         <ImageView
             android:id="@+id/contentImageView"

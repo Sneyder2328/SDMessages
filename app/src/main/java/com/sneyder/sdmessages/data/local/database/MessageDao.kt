@@ -16,18 +16,18 @@
 
 package com.sneyder.sdmessages.data.local.database
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
+import android.arch.persistence.room.*
 import com.sneyder.sdmessages.data.model.Message
 import io.reactivex.Flowable
 
 @Dao
 abstract class MessageDao : BaseDao<Message> {
 
-    @Query("SELECT * FROM ${Message.TABLE_NAME} WHERE (senderId = :arg0 AND recipientId = :arg1) OR (senderId = :arg1 AND recipientId = :arg0) ORDER BY dateCreated")
+    @Query("SELECT * FROM ${Message.TABLE_NAME} WHERE (senderId = :userId AND recipientId = :friendUserId) OR (senderId = :friendUserId AND recipientId = :userId) ORDER BY dateCreated")
     abstract fun findMessagesWithUserId(userId: String, friendUserId: String): Flowable<List<Message>>
+
+    @Query("SELECT * FROM ${Message.TABLE_NAME}")
+    abstract fun findMessages(): Flowable<List<Message>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertMessages(vararg messages: Message)

@@ -117,7 +117,7 @@ class AppImageCompressor @Inject constructor(): ImageCompressor() {
             try {
                 fileOutputStream = FileOutputStream(filename)
                 // write the compressed bitmap at the destination specified by filename.
-                scaledBitmap!!.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream)
+                scaledBitmap!!.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream)
                 emitter.onSuccess(File(filename))
             } catch (e: Exception) {
                 emitter.onError(e)

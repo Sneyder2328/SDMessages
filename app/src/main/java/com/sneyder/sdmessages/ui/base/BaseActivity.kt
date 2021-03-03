@@ -21,25 +21,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.support.annotation.RequiresApi
-import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import com.amazonaws.mobile.client.AWSMobileClient
-import com.sneyder.sdmessages.R
 import com.sneyder.sdmessages.data.PermissionsManager
 import com.sneyder.sdmessages.ui.camera.TakePictureActivity
-import com.sneyder.sdmessages.utils.AUTHORITIES_FILE_PROVIDER
 import com.sneyder.sdmessages.utils.ImageSelectorUtils
-import createImageFile
 import debug
 import isOreoOrLater
 import newThread
-import toast
 import java.io.File
-import java.io.IOException
-
 
 abstract class BaseActivity : AppCompatActivity() {
 

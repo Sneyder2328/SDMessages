@@ -20,7 +20,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.sneyder.sdmessages.BaseApp
-import android.support.v4.app.RemoteInput
 import android.widget.Toast
 import com.sneyder.sdmessages.data.model.TypeContent
 import com.sneyder.sdmessages.data.repository.MessageRepository
@@ -45,22 +44,23 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
             // do whatever you want with the message. Send to the server or add to the db.
             // for this tutorial, we'll just show it in a toast;
             val message: String = getReplyMessage(intent).toString()
-            val recipientId = intent.getStringExtra(EXTRA_RECIPIENT_ID)
+            val recipientId: String  = intent.getStringExtra(EXTRA_RECIPIENT_ID)
             Toast.makeText(context, "Message: $message to $recipientId", Toast.LENGTH_SHORT).show()
             context.notificationManager.cancel(NOTIFICATION_ID_NEW_MESSAGE)
 
-            messageRepository.sendMessageToFriend(
+            messageRepository.sendMessage(
                     senderId = userRepository.getCurrentUserId(),
                     sessionId = userRepository.getCurrentSessionId(),
                     recipientId = recipientId,
                     content = message,
-                    typeContent = TypeContent.TEXT.data
+                    typeContent = TypeContent.TEXT.data,
+                    isRecipientAGroup = false
             )
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
-                            onSuccess = { debug("onSuccess sendMessageToFriend = $it") },
-                            onError = { error("onError sendMessageToFriend = ${it.message}") }
+                            onSuccess = { debug("onSuccess sendMessage = $it") },
+                            onError = { error("onError sendMessage = ${it.message}") }
                     )
         }
     }

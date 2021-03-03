@@ -15,6 +15,7 @@
  */
 
 package com.sneyder.sdmessages.data.repository
+
 import com.sneyder.sdmessages.data.local.database.AppDatabase
 import com.sneyder.sdmessages.data.local.database.GroupDao
 import com.sneyder.sdmessages.data.local.database.UserDao
@@ -24,9 +25,9 @@ import com.sneyder.sdmessages.data.remote.api.SDMessagesApi
 import debug
 import error
 import io.reactivex.*
+import showValues
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class AppUserRepository
@@ -42,6 +43,12 @@ class AppUserRepository
         return Completable.fromAction { userDao.insert(checkIfMyself(userInfo)) }
                 .doOnComplete { debug("doOnComplete insertUser($userInfo)") }
                 .doOnError { error("doOnError insertUser($userInfo)") }
+    }
+
+    override fun insertGroup(groupInfo: GroupInfo): Completable {
+        return Completable.fromAction { groupDao.insert(groupInfo) }
+                .doOnComplete { debug("doOnComplete insertGroup($groupInfo)") }
+                .doOnError { error("doOnError insertGroup($groupInfo)") }
     }
 
     private fun checkIfMyself(userInfo: UserInfo): UserInfo {
@@ -95,23 +102,23 @@ class AppUserRepository
 
     override fun findMyFriends(): Flowable<List<UserInfo>> {
         val apiCall = sdMessagesApi.findFriendsByUserId(userId = getCurrentUserId(), sessionId = getCurrentSessionId())
-                .doOnSuccess { friends->
+                .doOnSuccess { friends ->
                     debug("doOnSuccess online findMyFriends() = $friends")
                     friends.forEach { it.typeUser = TypeUser.FRIEND.data }
                     userDao.insertUsers(*friends.toTypedArray())
                 }
-                .doOnError{ error("doOnError online findMyFriends() = ${it.message}") }
+                .doOnError { error("doOnError online findMyFriends() = ${it.message}") }
                 .onErrorReturn { emptyList() }
                 .toFlowable()
 
-        return Flowable.merge(userDao.findFriends(), apiCall)
+        return Flowable.merge(userDao.findFriends().distinctUntilChanged(), apiCall.distinctUntilChanged()).distinctUntilChanged()
                 .doOnNext { debug("doOnNext findMyFriends() = $it") }
                 .doOnError { error("doOnError findMyFriends() = ${it.message}") }
     }
 
     override fun findMyGroups(): Flowable<List<GroupInfo>> {
         val apiCall = sdMessagesApi.findGroupsByUserId(userId = getCurrentUserId(), sessionId = getCurrentSessionId())
-                .doOnSuccess { groups->
+                .doOnSuccess { groups ->
                     debug("doOnSuccess online findMyGroups() = $groups")
                     groupDao.insertGroups(*groups.toTypedArray())
                 }
@@ -119,36 +126,69 @@ class AppUserRepository
                 .onErrorReturn { emptyList() }
                 .toFlowable()
 
-        return Flowable.merge(groupDao.findGroups(), apiCall)
+        return Flowable.merge(groupDao.findGroups().distinctUntilChanged(), apiCall.distinctUntilChanged()).distinctUntilChanged()
                 .doOnNext { debug("doOnNext findMyGroups() = $it") }
                 .doOnError { error("doOnError findMyGroups() = ${it.message}") }
     }
 
     override fun findUsersByName(name: String): Flowable<List<UserInfo>> {
         val apiCall = if (name.isNotBlank()) {
-            sdMessagesApi.findUsersByName(username = name)
-                    .doOnSuccess { users ->
+            sdMessagesApi.findUsersByName(name = name)
+                    .doOnSuccess {
+                        var users = it
                         debug("doOnSuccess online findUsersByName($name) = $users")
                         if (users.isNotEmpty()) {
-                            users.map { checkIfMyself(it) }
+                            val listFriends = userDao.findFriends().blockingFirst()
+                            users = users.filter { user->
+                                listFriends.forEach { if(it.userId==user.userId) return@filter false }
+                                return@filter true
+                            }
+                            users = users.map { checkIfMyself(it) }
+                            users.showValues("usersByName")
                             userDao.insertUsers(*users.toTypedArray())
                         }
                     }
+                    .map { userDao.findUsersByName(name).blockingFirst() }
                     .doOnError { error("doOnError online findUsersByName($name) = ${it.message}") }
                     .onErrorReturn { emptyList() }
                     .toFlowable()
-        } else { Flowable.empty() }
+        } else {
+            Flowable.empty()
+        }
 
-        return Flowable.merge(userDao.findUsersByName(name), apiCall)
+        return Flowable.merge(userDao.findUsersByName(name), apiCall).distinctUntilChanged()
                 .doOnNext { debug("doOnNext findUsersByName($name) = $it") }
                 .doOnError { error("doOnError findUsersByName($name) = ${it.message}") }
     }
 
+    override fun findGroupsByName(name: String): Flowable<List<GroupInfo>> {
+        val apiCall = if (name.isNotBlank()) {
+            sdMessagesApi.findGroupsByName(name = name)
+                    .doOnSuccess { groups->
+                        debug("doOnSuccess online findGroupsByName($name) = $groups")
+                        if (groups.isNotEmpty()) {
+                            groups.showValues("groupsByName")
+                            groupDao.insertGroups(*groups.toTypedArray())
+                        }
+                    }
+                    .map { groupDao.findGroupsByName(name).blockingFirst() }
+                    .doOnError { error("doOnError online findUsersByName($name) = ${it.message}") }
+                    .onErrorReturn { emptyList() }
+                    .toFlowable()
+        } else {
+            Flowable.empty()
+        }
+        return Flowable.merge(groupDao.findGroupsByName(name), apiCall).distinctUntilChanged()
+                .doOnNext { debug("doOnNext findGroupsByName($name) = $it") }
+                .doOnError { error("doOnError findGroupsByName($name) = ${it.message}") }
+    }
 
     override fun sendFriendRequest(userId: String, sessionId: String, otherFirebaseTokenId: String, otherUserId: String, message: String): Single<String> {
         return sdMessagesApi.sendFriendRequest(userId = userId, sessionId = sessionId, otherFirebaseTokenId = otherFirebaseTokenId, otherUserId = otherUserId, message = message)
-                .doOnSuccess { debug("doOnSuccess sendFriendRequest(userId = $userId, sessionId = $sessionId, " +
-                        "otherFirebaseTokenId = $otherFirebaseTokenId, otherUserId = $otherUserId, message = $message) = $it") }
+                .doOnSuccess {
+                    debug("doOnSuccess sendFriendRequest(userId = $userId, sessionId = $sessionId, " +
+                            "otherFirebaseTokenId = $otherFirebaseTokenId, otherUserId = $otherUserId, message = $message) = $it")
+                }
                 .doOnError { error("doOnError sendFriendRequest($userId, $sessionId, $otherFirebaseTokenId, $otherUserId, $message) = ${it.message}") }
     }
 
@@ -184,7 +224,7 @@ class AppUserRepository
         return sdMessagesApi.acceptFriendRequest(fromUserId = fromUserId, toUserId = toUserId, sessionId = sessionId)
                 .doOnSuccess {
                     debug("doOnSuccess acceptFriendRequest(fromUserId = $fromUserId, toUserId = $toUserId, sessionId = $sessionId) = $it")
-                    if(it != "true") throw Exception(it)
+                    if (it != "true") throw Exception(it)
                 }
                 .doOnError { error("doOnError acceptFriendRequest(fromUserId = $fromUserId, toUserId = $toUserId, sessionId = $sessionId) = ${it.message}") }
     }
@@ -207,7 +247,13 @@ class AppUserRepository
                 }
     }
 
-    private fun logOutLocally(){
+    override fun createNewGroup(groupId: String, name: String, pictureUrl: String): Single<GroupInfo> {
+        return sdMessagesApi.createNewGroup(groupId = groupId, name = name, adminId = getCurrentUserId(), adminSessionId = getCurrentSessionId(), pictureUrl = pictureUrl, password = "", typeAccess = "Public")
+                .doOnSuccess { debug("doOnSuccess createNewGroup(groupId = $groupId, groupName = $name, pictureUrl = $pictureUrl) = $it") }
+                .doOnError { error("doOnError createNewGroup(groupId = $groupId, groupName = $name, pictureUrl = $pictureUrl) = ${it.message}") }
+    }
+
+    private fun logOutLocally() {
         clearPreferences()
         appDatabase.clearDatabase()
     }

@@ -46,9 +46,10 @@ fun String?.asS3UrlIfApplicable(): Deferred<String> = async(CommonPool) {
  * Returns a temporal S3 url with the key passed on
  */
 fun generatePresignedS3Url(key: String): String {
+    val days = 60L
     val generatePresignedUrlRequest = GeneratePresignedUrlRequest(DEFAULT_BUCKET_NAME, key)
-            .withExpiration(Date().apply { time = System.currentTimeMillis() + (24 * 60 * 60 * 1000) })
-    return AmazonS3Client(AWSMobileClient.getInstance().credentialsProvider).generatePresignedUrl(generatePresignedUrlRequest).toString().also { debug("generatePresignedS3Url = $it") }
+            .withExpiration(Date().apply { time = System.currentTimeMillis() + (days * 24 * 60 * 60 * 1000) })
+    return AmazonS3Client(AWSMobileClient.getInstance().credentialsProvider).generatePresignedUrl(generatePresignedUrlRequest).toString()
 }
 
 /**

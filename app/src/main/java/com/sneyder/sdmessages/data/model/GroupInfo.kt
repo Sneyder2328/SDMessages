@@ -25,9 +25,13 @@ import com.google.gson.annotations.SerializedName
 data class GroupInfo(
         @SerializedName("groupId") @Expose @PrimaryKey var groupId: String = "",
         @SerializedName("name") @Expose var name: String = "",
-        @SerializedName("pictureUrl") @Expose var pictureUrl: String= ""
-) {
+        @SerializedName("adminId") @Expose var adminId: String = "",
+        @SerializedName("typeAccess") @Expose var typeAccess: String = "",
+        @SerializedName("password") @Expose var password: String = "",
+        @SerializedName("pictureUrl") @Expose var pictureUrl: String= "") {
+
     companion object {
         const val TABLE_NAME = "GroupInfo"
     }
+
 }
